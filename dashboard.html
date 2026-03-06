@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GIS Crime & Property Analysis — NT Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif; background: #f3f4f6; }
+    
+    header { 
+      background: #1f3b73; color: #fff; padding: 16px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    header h1 { font-size: 1.4rem; }
+    
+    header a { 
+      color: #fff; text-decoration: none; background: rgba(255,255,255,0.2); 
+      padding: 8px 16px; border-radius: 8px; transition: background 0.2s;
+    }
+    
+    header a:hover { background: rgba(255,255,255,0.3); }
+    
+    .container { display: flex; height: calc(100vh - 60px); }
+    
+    .sidebar {
+      width: 320px; background: #1f3b73; color: #fff; padding: 20px;
+      box-sizing: border-box; overflow-y: auto;
+    }
+    
+    .sidebar h3 { margin: 16px 0 12px; font-size: 0.95rem; }
+    
+    .control { 
+      background: rgba(255,255,255,0.08); padding: 12px; border-radius: 8px; margin-bottom: 12px;
+    }
+    
+    label { display: block; font-size: 0.85rem; margin-bottom: 6px; opacity: 0.9; }
+    
+    select { 
+      width: 100%; padding: 8px; border-radius: 6px; border: none; font-size: 0.9rem;
+    }
+    
+    button { 
+      width: 100%; padding: 10px; background: #2e5aac; color: #fff; border: none; 
+      border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 8px;
+      transition: background 0.2s;
+    }
+    
+    button:hover { background: #355fba; }
+    
+    #map { flex: 1; }
+    
+    .placeholder {
+      display: flex; align-items: center; justify-content: center; 
+      height: 100%; background: #fff;
+      flex-direction: column; gap: 20px; color: #666;
+    }
+    
+    .placeholder h2 { color: #333; }
+    
+    .placeholder p { max-width: 400px; text-align: center; line-height: 1.6; }
+    
+    .info-box {
+      position: absolute; bottom: 20px; left: 340px; background: #fff; 
+      padding: 12px 16px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      z-index: 999; max-width: 300px;
+    }
+    
+    .dashboard {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+      padding: 12px; background: #fff; border-top: 1px solid #ddd;
+      height: 30vh; overflow-y: auto;
+    }
+    
+    .card {
+      background: #fff; border: 1px solid #e6e6e6; border-radius: 12px;
+      padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    
+    .card h4 { margin-bottom: 8px; font-size: 0.9rem; }
+    
+    canvas { width: 100% !important; height: 100% !important; }
+    
+    .upload-section {
+      background: rgba(255,255,255,0.1); padding: 12px; border-radius: 8px;
+      border: 1px dashed rgba(255,255,255,0.3); margin-top: 12px;
+    }
+    
+    .upload-section input { 
+      color: #fff; 
+      width: 100%; padding: 6px; margin-top: 8px;
+    }
+    
+    .upload-section input::file-selector-button {
+      background: #2e5aac; color: #fff; border: none; padding: 6px 12px;
+      border-radius: 6px; cursor: pointer; font-weight: 600;
+    }
+    
+    .status { 
+      font-size: 0.85rem; margin-top: 8px; padding: 8px; 
+      border-radius: 6px; background: rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div>
+      <h1>🗺️ GIS Crime & Property Analysis</h1>
+      <small>NT Dashboard (Data files to be uploaded)</small>
+    </div>
+    <a href="index.html">← Back to Portfolio</a>
+  </header>
+
+  <div class="container">
+    <div class="sidebar">
+      <h3>📊 Project Info</h3>
+      <div class="control">
+        <p style="font-size: 0.9rem; line-height: 1.5; opacity: 0.95;">
+          Integrated SA2 boundaries with crime and property metrics for spatial insights.
+        </p>
+        <p style="font-size: 0.85rem; margin-top: 8px; opacity: 0.8;">
+          <b>Tech Stack:</b> QGIS · GeoPandas · Folium · Leaflet
+        </p>
+      </div>
+
+      <h3>📁 Data Upload</h3>
+      <div class="upload-section">
+        <label style="opacity: 0.95;">1. Geographic Data (ZIP)</label>
+        <input type="file" id="shapefileZip" accept=".zip" />
+        <div class="status" id="statusShapefile">Waiting for file...</div>
+      </div>
+
+      <div class="upload-section">
+        <label style="opacity: 0.95;">2. Crime Statistics (CSV)</label>
+        <input type="file" id="crimeCSV" accept=".csv" />
+        <div class="status" id="statusCrime">Waiting for file...</div>
+      </div>
+
+      <div class="upload-section">
+        <label style="opacity: 0.95;">3. Property Data (XLSX)</label>
+        <input type="file" id="propertyXLSX" accept=".xlsx" />
+        <div class="status" id="statusProperty">Waiting for file...</div>
+      </div>
+
+      <button onclick="loadDashboard()">🔄 Load Dashboard</button>
+
+      <div style="margin-top: 16px; padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #fbbf24;">
+        <p style="font-size: 0.85rem; opacity: 0.9;">
+          <b>ℹ️ Instructions:</b><br/>
+          1. Upload your ZIP with SA2 shapefile<br/>
+          2. Upload crime statistics CSV<br/>
+          3. Upload property data Excel<br/>
+          4. Click "Load Dashboard"
+        </p>
+      </div>
+    </div>
+
+    <div id="map" class="placeholder">
+      <h2>🗺️ Map will load here</h2>
+      <p>Upload your geographic and crime data files to visualize the NT crime and property analysis dashboard.</p>
+    </div>
+
+    <div class="info-box">
+      Hover over map elements to see details
+    </div>
+  </div>
+
+  <div class="dashboard">
+    <div class="card">
+      <h4>📈 Crime Trend</h4>
+      <canvas id="chart1"></canvas>
+    </div>
+    <div class="card">
+      <h4>📊 Crime Type Distribution</h4>
+      <canvas id="chart2"></canvas>
+    </div>
+    <div class="card">
+      <h4>🏘️ Property Insights</h4>
+      <canvas id="chart3"></canvas>
+    </div>
+  </div>
+
+  <script>
+    // File upload handlers
+    document.getElementById('shapefileZip').addEventListener('change', function(e) {
+      const status = document.getElementById('statusShapefile');
+      if (e.target.files.length > 0) {
+        status.textContent = '✓ ' + e.target.files[0].name + ' ready';
+        status.style.background = 'rgba(34, 197, 94, 0.2)';
+      }
+    });
+
+    document.getElementById('crimeCSV').addEventListener('change', function(e) {
+      const status = document.getElementById('statusCrime');
+      if (e.target.files.length > 0) {
+        status.textContent = '✓ ' + e.target.files[0].name + ' ready';
+        status.style.background = 'rgba(34, 197, 94, 0.2)';
+      }
+    });
+
+    document.getElementById('propertyXLSX').addEventListener('change', function(e) {
+      const status = document.getElementById('statusProperty');
+      if (e.target.files.length > 0) {
+        status.textContent = '✓ ' + e.target.files[0].name + ' ready';
+        status.style.background = 'rgba(34, 197, 94, 0.2)';
+      }
+    });
+
+    // Placeholder chart function
+    function createPlaceholderCharts() {
+      const ctx1 = document.getElementById('chart1').getContext('2d');
+      new Chart(ctx1, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [{
+            label: 'Total Offences',
+            data: [0, 0, 0, 0, 0, 0],
+            borderColor: '#1f77b4',
+            backgroundColor: 'rgba(31, 119, 180, 0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+
+      const ctx2 = document.getElementById('chart2').getContext('2d');
+      new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: [],
+          datasets: [{ data: [], backgroundColor: [] }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '60%' }
+      });
+
+      const ctx3 = document.getElementById('chart3').getContext('2d');
+      new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [{ label: 'Property Value', data: [], backgroundColor: '#1f77b4' }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+    }
+
+    function loadDashboard() {
+      const hasShapefile = document.getElementById('shapefileZip').files.length > 0;
+      const hasCrime = document.getElementById('crimeCSV').files.length > 0;
+      const hasProperty = document.getElementById('propertyXLSX').files.length > 0;
+
+      if (!hasShapefile || !hasCrime || !hasProperty) {
+        alert('⚠️ Please upload all three files first:\n1. ZIP (shapefile)\n2. CSV (crime data)\n3. XLSX (property data)');
+        return;
+      }
+
+      // Initialize map
+      const mapEl = document.getElementById('map');
+      
+      // Clear placeholder
+      if (mapEl.classList.contains('placeholder')) {
+        mapEl.classList.remove('placeholder');
+        mapEl.innerHTML = '';
+        
+        // Initialize Leaflet map
+        const map = L.map(mapEl).setView([-19, 133], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+        
+        // Create placeholder charts
+        createPlaceholderCharts();
+        
+        alert('📊 Dashboard ready!\n\nNote: Data processing requires the Python backend.\nFor full functionality, run the Jupyter scripts with your uploaded files.');
+      }
+    }
+
+    // Initialize placeholder charts on load
+    createPlaceholderCharts();
+  </script>
+</body>
+</html>

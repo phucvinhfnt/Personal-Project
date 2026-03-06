@@ -277,7 +277,7 @@ body{
   border-radius:14px;
   padding:18px 20px;
   box-shadow:0 8px 18px var(--shadow);
-  transition: transform .25s ease, box-shadow .25s ease;
+  transition: transform .25s ease, box-shadow .25s ease, opacity .25s ease;
 }
 
 .date{
