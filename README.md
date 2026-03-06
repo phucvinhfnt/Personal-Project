@@ -23,6 +23,13 @@ Personal-Project/
 
 ## 🚀 Quick Start
 
+### 🌍 Live Website (GitHub Pages)
+
+Your portfolio is now live! Visit it here:
+**https://phucvinhfnt.github.io/Personal-Project/**
+
+The site is automatically deployed on every push to the `main` branch.
+
 ### Local Development
 
 1. Open `index.html` directly in your browser, or
@@ -74,6 +81,18 @@ thread.start()
 public_url = ngrok.connect(PORT)
 print(f"🌍 Public URL: {public_url}")
 ```
+
+## 📚 GitHub Pages Setup
+
+Your site is automatically hosted via GitHub Pages! Here's how it works:
+
+1. **Automatic Deployment** - Every push to the `main` branch automatically updates your live site
+2. **Custom Domain** (Optional) - Add a custom domain in Repository Settings → Pages
+3. **Access Settings** - Go to Repository Settings → Pages to verify GitHub Pages is enabled
+
+**GitHub Pages Config:**
+- Source: `main` branch `/root` directory
+- URL: `https://phucvinhfnt.github.io/Personal-Project/`
 
 ## 🎨 Features Breakdown
 
