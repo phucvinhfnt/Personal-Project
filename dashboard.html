@@ -72,7 +72,7 @@
     }
     
     .dashboard {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
       padding: 12px; background: #fff; border-top: 1px solid #ddd;
       height: 30vh; overflow-y: auto;
     }
@@ -142,12 +142,6 @@
         <div class="status" id="statusCrime">Waiting for file...</div>
       </div>
 
-      <div class="upload-section">
-        <label style="opacity: 0.95;">3. Property Data (XLSX)</label>
-        <input type="file" id="propertyXLSX" accept=".xlsx" />
-        <div class="status" id="statusProperty">Waiting for file...</div>
-      </div>
-
       <button onclick="loadDashboard()">🔄 Load Dashboard</button>
 
       <div style="margin-top: 16px; padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #fbbf24;">
@@ -155,8 +149,7 @@
           <b>ℹ️ Instructions:</b><br/>
           1. Upload your ZIP with SA2 shapefile<br/>
           2. Upload crime statistics CSV<br/>
-          3. Upload property data Excel<br/>
-          4. Click "Load Dashboard"
+          3. Click "Load Dashboard"
         </p>
       </div>
     </div>
@@ -180,10 +173,6 @@
       <h4>📊 Crime Type Distribution</h4>
       <canvas id="chart2"></canvas>
     </div>
-    <div class="card">
-      <h4>🏘️ Property Insights</h4>
-      <canvas id="chart3"></canvas>
-    </div>
   </div>
 
   <script>
@@ -198,14 +187,6 @@
 
     document.getElementById('crimeCSV').addEventListener('change', function(e) {
       const status = document.getElementById('statusCrime');
-      if (e.target.files.length > 0) {
-        status.textContent = '✓ ' + e.target.files[0].name + ' ready';
-        status.style.background = 'rgba(34, 197, 94, 0.2)';
-      }
-    });
-
-    document.getElementById('propertyXLSX').addEventListener('change', function(e) {
-      const status = document.getElementById('statusProperty');
       if (e.target.files.length > 0) {
         status.textContent = '✓ ' + e.target.files[0].name + ' ready';
         status.style.background = 'rgba(34, 197, 94, 0.2)';
@@ -240,25 +221,14 @@
         },
         options: { responsive: true, maintainAspectRatio: false, cutout: '60%' }
       });
-
-      const ctx3 = document.getElementById('chart3').getContext('2d');
-      new Chart(ctx3, {
-        type: 'bar',
-        data: {
-          labels: [],
-          datasets: [{ label: 'Property Value', data: [], backgroundColor: '#1f77b4' }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-      });
     }
 
     function loadDashboard() {
       const hasShapefile = document.getElementById('shapefileZip').files.length > 0;
       const hasCrime = document.getElementById('crimeCSV').files.length > 0;
-      const hasProperty = document.getElementById('propertyXLSX').files.length > 0;
 
-      if (!hasShapefile || !hasCrime || !hasProperty) {
-        alert('⚠️ Please upload all three files first:\n1. ZIP (shapefile)\n2. CSV (crime data)\n3. XLSX (property data)');
+      if (!hasShapefile || !hasCrime) {
+        alert('⚠️ Please upload both files first:\n1. ZIP (shapefile)\n2. CSV (crime data)');
         return;
       }
 
