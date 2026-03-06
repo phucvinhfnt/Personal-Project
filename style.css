@@ -1,0 +1,399 @@
+/* ===== APPLE FONT STACK ===== */
+:root{
+  --font-apple:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "SF Pro Text",
+    "Helvetica Neue",
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  /* PAGE BACKGROUND */
+  --page-bg-light: linear-gradient(180deg, #f3f4f6 0%, #eef0f3 100%);
+  --page-bg-dark: linear-gradient(180deg, #0b0f14 0%, #111827 100%);
+  --page-bg: var(--page-bg-light); /* Default to light */
+
+  /* GLASS HEADER */
+  --glass-bg-light: rgba(255,255,255,0.6);
+  --glass-border-light: rgba(255,255,255,0.45);
+  --highlight-light: rgba(255,255,255,0.65);
+  --glass-bg: var(--glass-bg-light);
+  --glass-border: var(--glass-border-light);
+  --highlight: var(--highlight-light);
+
+  /* TEXT */
+  --text-light: #111827;
+  --muted-light: #374151;
+  --text: var(--text-light);
+  --muted: var(--muted-light);
+
+  /* Timeline specific variables - adapted for theme */
+  --line-light: #F3D98C;
+  --line: var(--line-light);
+  --dot-default: #F0B429;      /* Vàng mặc định */
+  --dot-active: var(--dot-default); /* Chấm active mặc định màu vàng */
+  --dot-active-hover: #ff4141; /* Màu đỏ khi active + hover */
+  --card-bg-light: #FFFFFF;
+  --card-bg: var(--card-bg-light);
+  --shadow-light: rgba(0,0,0,0.08);
+  --shadow: var(--shadow-light);
+
+  /* CONTROL */
+  --axis-x: 28px;
+  --dot-size: 18px;
+  --dot-top: 36px;
+  --gap: 15px;
+}
+
+/* DARK MODE */
+[data-theme="dark"]{
+  --page-bg: var(--page-bg-dark);
+
+  --glass-bg: rgba(20,20,24,0.55);
+  --glass-border: rgba(255,255,255,0.12);
+  --highlight: rgba(255,255,255,0.18);
+
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+
+  --line: #6b7280; /* Darker line for contrast */
+  --card-bg: rgba(20,20,24,0.7);
+  --shadow: rgba(0,0,0,0.4);
+}
+
+/* RESET */
+*{ box-sizing:border-box; } /* Fixed typo */
+
+html { scroll-behavior: smooth; }
+
+body{
+  margin:0;
+  min-height:200vh;
+  padding-top:130px; /* Space for fixed header */
+  background: var(--page-bg);
+  font-family: var(--font-apple);
+  color: var(--text);
+  transition: background .5s ease, color .4s ease;
+}
+
+/* ===== LIQUID GLASS HEADER ===== */
+.glass-header{
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(980px, calc(100% - 32px));
+  z-index: 999;
+
+  background: var(--glass-bg);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+
+  border-radius: 28px;
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+}
+
+/* LIQUID HIGHLIGHT */
+.glass-header::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(
+      160px 80px at var(--mx, 30%) -25%,
+      var(--highlight),
+      transparent 70%
+    );
+  pointer-events:none;
+}
+
+/* NAV */
+.nav{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  padding:16px 26px;
+  position:relative;
+  z-index:2;
+}
+
+/* LEFT */
+.brand{
+  font-size:1.1rem;
+  font-weight:700;
+  letter-spacing:-0.025em;
+  color: var(--text); /* Ensure brand text adapts to theme */
+}
+
+/* CENTER */
+.nav-center{
+  list-style:none;
+  display:flex;
+  justify-content:center;
+  gap:32px;
+  margin:0;
+  padding:0;
+}
+
+.nav-center li{
+  position:relative;
+}
+
+.nav-center a{
+  font-size:1rem;
+  font-weight:600;
+  letter-spacing:-0.015em;
+  color: var(--muted);
+  text-decoration: none;
+  display: block;
+  padding: 0;
+}
+
+/* underline hover */
+.nav-center li::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-7px;
+  height:2px;
+  background:transparent;
+  border-radius:999px;
+  transition:background .25s ease;
+}
+
+.nav-center li:hover::after{
+  background: currentColor;
+}
+
+/* RIGHT */
+.nav-right{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+/* STATUS DOT */
+.status-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#22c55e;
+  box-shadow:0 0 0 4px rgba(34,197,94,.25);
+}
+
+/* TOGGLE */
+.theme-toggle{
+  width:46px;
+  height:28px;
+  border-radius:999px;
+  background: rgba(0,0,0,0.12);
+  position:relative;
+  cursor:pointer;
+}
+
+.toggle-knob{
+  position:absolute;
+  top:3px;
+  left:3px;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+  transition: transform .35s ease, background .35s ease;
+}
+
+[data-theme="dark"] .theme-toggle{
+  background: rgba(255,255,255,0.25);
+}
+
+[data-theme="dark"] .toggle-knob{
+  transform: translateX(20px);
+  background:#111827;
+}
+
+/* ===== TIMELINE ===== */
+.timeline{
+  max-width: 920px;
+  margin:auto;
+  position:relative;
+}
+
+.timeline::before{
+  content:"";
+  position:absolute;
+  left: var(--axis-x);
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--line);
+  border-radius: 999px;
+  transform: translateX(-50%);   /* ✅ ADD THIS */
+}
+
+
+.event{
+  position:relative;
+  display:grid;
+  grid-template-columns: 56px 1fr;
+  column-gap: 32px;
+  padding: 24px 0;
+}
+
+.gap-mask{
+  position:absolute;
+  left: var(--axis-x);
+  top: calc(var(--dot-top) - var(--gap));
+  width: 8px;
+  height: calc(var(--dot-size) + var(--gap)*2);
+  background: var(--card-bg); /* Matches content section background */
+  transform: translateX(-50%);
+  z-index:2;
+}
+
+.dot{
+  position:absolute;
+  left: var(--axis-x);
+  top: var(--dot-top);
+  width: var(--dot-size);
+  height: var(--dot-size);
+  background: var(--dot-default);
+  border-radius:50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 0 2px rgba(240,180,41,0.35); /* Default dot shadow */
+  transition: transform .25s ease, box-shadow .25s ease, opacity .25s ease;
+  z-index:3;
+}
+
+.card{
+  background: var(--card-bg);
+  border-radius:14px;
+  padding:18px 20px;
+  box-shadow:0 8px 18px var(--shadow);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.date{
+  font-size:0.85rem;
+  font-weight:700;
+  color:var(--muted);
+}
+
+.title{
+  font-size:1.15rem;
+  font-weight:800;
+  margin:6px 0;
+  color: var(--text);
+}
+
+.desc{
+  font-size:0.98rem;
+  line-height:1.5;
+}
+
+.tools{
+  margin-top:10px;
+  font-size:0.9rem;
+  font-weight:700;
+  color:#92400e; /* Kept fixed accent color */
+}
+
+/* ===== ACTIVE (SCROLL) ===== */
+.event.active .dot{
+  background: var(--dot-active); /* Active dot is yellow */
+  transform: translateX(-50%) scale(1.15);
+}
+
+/* ACTIVE LINE OVERLAY */
+.event::before{
+  content:"";
+  position:absolute;
+  left: var(--axis-x);
+  top:0;
+  bottom:0;
+  width:4px;
+  background: transparent;
+  transform: translateX(-50%);
+  transition: background .3s ease;
+  z-index:1;
+}
+
+.event.active::before{
+  background: rgba(240,180,41,0.35);
+}
+
+/* ===== HOVER ===== */
+.event:hover .card{
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px var(--shadow); /* Use theme-controlled shadow */
+}
+
+/* BLINK KEYFRAMES */
+@keyframes blink-glow {
+  from {
+    opacity: 1;
+    box-shadow:
+      0 0 6px rgba(255,65,65,.6),
+      0 0 14px rgba(255,65,65,.8),
+      0 0 24px rgba(255,65,65,1);
+  }
+  to {
+    opacity: 0;
+    box-shadow: none;
+  }
+}
+
+/* BLINK ONLY WHEN ACTIVE + HOVER */
+.event.active:hover .dot{
+  background: var(--dot-active-hover); /* Red when active and hovered */
+  animation: blink-glow 1s cubic-bezier(.5, 0, 1, 1) infinite alternate;
+}
+
+/* ===== CONTENT SECTIONS ===== */
+.content-section{
+  max-width: 820px;
+  margin: 40px auto; /* Provides spacing between sections */
+  padding: 48px 16px;
+  text-align:center;
+  background: var(--card-bg);
+  border-radius:14px;
+  box-shadow:0 8px 18px var(--shadow);
+  scroll-margin-top: 150px; /* Offset for fixed header */
+}
+
+.content-section h1{
+  font-size:2.25rem;
+  letter-spacing:-0.03em;
+  margin-bottom:14px;
+  color: var(--text);
+}
+
+.content-section p{
+  font-size:1.05rem;
+  color:var(--muted);
+}
+
+/* MOBILE */
+@media(max-width:640px){
+  :root{ --axis-x: 22px; }
+  .event{
+    grid-template-columns: 44px 1fr;
+    column-gap: 20px;
+  }
+  .nav-center{ gap:20px; }
+  .brand{ font-size:1rem; }
+}
+
+/* Disable hover blink on touch devices */
+@media (hover: none){
+  .event.active:hover .dot{
+    animation: none;
+  }
+}
