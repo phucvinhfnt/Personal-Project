@@ -1,349 +1,406 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>GIS Crime & Property Analysis — NT Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif; background: #f3f4f6; }
-    
-    header { 
-      background: #1f3b73; color: #fff; padding: 16px 24px;
-      display: flex; align-items: center; justify-content: space-between;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    header h1 { font-size: 1.4rem; }
-    
-    header a { 
-      color: #fff; text-decoration: none; background: rgba(255,255,255,0.2); 
-      padding: 8px 16px; border-radius: 8px; transition: background 0.2s;
-    }
-    
-    header a:hover { background: rgba(255,255,255,0.3); }
-    
-    .container { display: flex; height: calc(100vh - 60px); }
-    
-    .sidebar {
-      width: 320px; background: #1f3b73; color: #fff; padding: 20px;
-      box-sizing: border-box; overflow-y: auto;
-    }
-    
-    .sidebar h3 { margin: 16px 0 12px; font-size: 0.95rem; }
-    
-    .control { 
-      background: rgba(255,255,255,0.08); padding: 12px; border-radius: 8px; margin-bottom: 12px;
-    }
-    
-    label { display: block; font-size: 0.85rem; margin-bottom: 6px; opacity: 0.9; }
-    
-    select { 
-      width: 100%; padding: 8px; border-radius: 6px; border: none; font-size: 0.9rem;
-    }
-    
-    button { 
-      width: 100%; padding: 10px; background: #2e5aac; color: #fff; border: none; 
-      border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 8px;
-      transition: background 0.2s;
-    }
-    
-    button:hover { background: #355fba; }
-    
-    #map { flex: 1; }
-    
-    .placeholder {
-      display: flex; align-items: center; justify-content: center; 
-      height: 100%; background: #fff;
-      flex-direction: column; gap: 20px; color: #666;
-    }
-    
-    .placeholder h2 { color: #333; }
-    
-    .placeholder p { max-width: 400px; text-align: center; line-height: 1.6; }
-    
-    .info-box {
-      position: absolute; bottom: 20px; left: 340px; background: #fff; 
-      padding: 12px 16px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-      z-index: 999; max-width: 300px;
-    }
-    
-    .dashboard {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
-      padding: 12px; background: #fff; border-top: 1px solid #ddd;
-      height: 30vh; overflow-y: auto;
-    }
-    
-    .card {
-      background: #fff; border: 1px solid #e6e6e6; border-radius: 12px;
-      padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-    
-    .card h4 { margin-bottom: 8px; font-size: 0.9rem; }
-    
-    canvas { width: 100% !important; height: 100% !important; }
-    
-    .upload-section {
-      background: rgba(255,255,255,0.1); padding: 12px; border-radius: 8px;
-      border: 1px dashed rgba(255,255,255,0.3); margin-top: 12px;
-    }
-    
-    .upload-section input { 
-      color: #fff; 
-      width: 100%; padding: 6px; margin-top: 8px;
-    }
-    
-    .upload-section input::file-selector-button {
-      background: #2e5aac; color: #fff; border: none; padding: 6px 12px;
-      border-radius: 6px; cursor: pointer; font-weight: 600;
-    }
-    
-    .status { 
-      font-size: 0.85rem; margin-top: 8px; padding: 8px; 
-      border-radius: 6px; background: rgba(255,255,255,0.1);
-    }
-  </style>
+
+<meta charset="utf-8"/>
+<title>NT Crime Dashboard</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#f4f6f9;
+}
+
+.navbar{
+background:#1f3b73;
+color:white;
+padding:14px 20px;
+font-weight:bold;
+display:flex;
+justify-content:space-between;
+}
+
+.wrap{
+display:flex;
+height:70vh;
+}
+
+.sidebar{
+width:320px;
+background:#1f3b73;
+color:white;
+padding:15px;
+overflow:auto;
+}
+
+.control{
+margin-bottom:12px;
+background:rgba(255,255,255,0.08);
+padding:10px;
+border-radius:8px;
+}
+
+select{
+width:100%;
+padding:8px;
+border-radius:6px;
+border:none;
+}
+
+button{
+width:100%;
+padding:10px;
+background:#2e5aac;
+border:none;
+color:white;
+border-radius:8px;
+cursor:pointer;
+margin-top:8px;
+}
+
+#map{
+flex:1;
+}
+
+.dashboard{
+height:30vh;
+background:white;
+display:flex;
+gap:12px;
+padding:12px;
+border-top:1px solid #ddd;
+}
+
+.card{
+flex:1;
+border:1px solid #ddd;
+border-radius:10px;
+padding:10px;
+}
+
+.card h4{
+margin:0 0 6px;
+}
+
+.kpi{
+font-size:28px;
+font-weight:bold;
+}
+
+canvas{
+height:100%!important;
+}
+
+</style>
 </head>
 
 <body>
-  <header>
-    <div>
-      <h1>🗺️ GIS Crime & Property Analysis</h1>
-      <small id="headerStatus" style="color: #fbbf24;">Loading data...</small>
-    </div>
-    <a href="index.html">← Back to Portfolio</a>
-  </header>
 
-  <div class="container">
-    <div class="sidebar">
-      <h3>📊 Filters</h3>
-      
-      <div class="control">
-        <label>Region</label>
-        <select id="regionSelect" onchange="updateMap()">
-          <option value="all">All NT</option>
-          <option value="darwin">Darwin</option>
-          <option value="palmerston">Palmerston</option>
-          <option value="alice">Alice Springs</option>
-        </select>
-      </div>
+<div class="navbar">
+<div>NT Crime Dashboard</div>
+<div id="asAt">Loading...</div>
+</div>
 
-      <div class="control">
-        <label>Crime Type</label>
-        <select id="crimeTypeSelect" onchange="updateMap()">
-          <option value="all">All Types</option>
-        </select>
-      </div>
+<div class="wrap">
 
-      <button onclick="resetView()">🔄 Reset Map</button>
+<div class="sidebar">
 
-      <div style="margin-top: 16px; padding: 12px; background: rgba(255,255,255,0.08); border-radius: 8px; border-left: 3px solid #22c55e;">
-        <p style="font-size: 0.85rem; opacity: 0.9;" id="dataStatus">
-          <b>✓ Data Loaded</b><br/>
-          Crime statistics and SA2 boundaries ready
-        </p>
-      </div>
-    </div>
+<h3>Filters</h3>
 
-    <div id="map" class="placeholder">
-      <h2>🗺️ Initializing map...</h2>
-      <p>Loading SA2 boundaries and crime data...</p>
-    </div>
+<div class="control">
+<label>Location</label>
+<select id="locationSelect">
+<option value="all">All NT</option>
+<option value="darwin">Darwin</option>
+<option value="palmerston">Palmerston</option>
+<option value="alice">Alice Springs</option>
+</select>
+</div>
 
-    <div class="info-box">
-      Hover over map elements to see details
-    </div>
-  </div>
+<div class="control">
+<label>Offence Type</label>
+<select id="offenceSelect">
+<option value="all">All offences</option>
+</select>
+</div>
 
-  <div class="dashboard">
-    <div class="card">
-      <h4>📈 Crime Trend</h4>
-      <canvas id="chart1"></canvas>
-    </div>
-    <div class="card">
-      <h4>📊 Crime Type Distribution</h4>
-      <canvas id="chart2"></canvas>
-    </div>
-  </div>
+<div class="control">
+<label>Start Month</label>
+<select id="startMonth"></select>
 
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script>
-    let map = null;
-    let crimeData = [];
-    let mapLayer = null;
+<label>End Month</label>
+<select id="endMonth"></select>
+</div>
 
-    async function initDashboard() {
-      try {
-        // Load crime statistics
-        const response = await fetch('nt_crime_statistics_dec_2025.csv');
-        const csvText = await response.text();
-        const parsed = Papa.parse(csvText, { header: true, dynamicTyping: false });
-        crimeData = parsed.data.filter(row => row.reporting_region);
+<button onclick="applyFilters()">Apply Filters</button>
+<button onclick="togglePolice()">Toggle Police Stations</button>
 
-        // Extract unique crime types for dropdown
-        const crimeTypes = [...new Set(crimeData.map(r => r.offence_type).filter(Boolean))];
-        const crimeSelect = document.getElementById('crimeTypeSelect');
-        crimeTypes.forEach(type => {
-          const opt = document.createElement('option');
-          opt.value = type;
-          opt.textContent = type;
-          crimeSelect.appendChild(opt);
-        });
+</div>
 
-        // Initialize map
-        const mapEl = document.getElementById('map');
-        mapEl.classList.remove('placeholder');
-        mapEl.innerHTML = '';
-        
-        map = L.map(mapEl).setView([-19, 133], 6);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
-          maxZoom: 19
-        }).addTo(map);
+<div id="map"></div>
 
-        // Create sample GeoJSON for NT regions (since shapefile processing requires special handling)
-        const ntRegions = {
-          "type": "FeatureCollection",
-          "features": [
-            {
-              "type": "Feature",
-              "properties": { "name": "Darwin", "region": "darwin" },
-              "geometry": { "type": "Point", "coordinates": [130.8456, -12.4634] }
-            },
-            {
-              "type": "Feature",
-              "properties": { "name": "Palmerston", "region": "palmerston" },
-              "geometry": { "type": "Point", "coordinates": [130.9833, -12.4860] }
-            },
-            {
-              "type": "Feature",
-              "properties": { "name": "Alice Springs", "region": "alice" },
-              "geometry": { "type": "Point", "coordinates": [133.8807, -23.6980] }
-            }
-          ]
-        };
+</div>
 
-        // Add markers
-        L.geoJSON(ntRegions, {
-          pointToLayer: (feature, latlng) => {
-            const count = crimeData.filter(r => r.reporting_region.toLowerCase().includes(feature.properties.region)).length;
-            return L.circleMarker(latlng, {
-              radius: 15 + Math.sqrt(count) / 2,
-              fillColor: '#1f77b4',
-              color: '#000',
-              weight: 2,
-              opacity: 1,
-              fillOpacity: 0.7
-            }).bindPopup(`<b>${feature.properties.name}</b><br>Offences: ${count}`);
-          }
-        }).addTo(map);
+<div class="dashboard">
 
-        updateCharts();
-        document.getElementById('headerStatus').textContent = '✓ Live Dashboard';
-        document.getElementById('headerStatus').style.color = '#22c55e';
+<div class="card">
+<h4>Total Offences</h4>
+<div class="kpi" id="totalValue">0</div>
+<div id="totalChange"></div>
 
-      } catch (error) {
-        console.error('Error loading data:', error);
-        document.getElementById('headerStatus').textContent = `Error: ${error.message}`;
-        document.getElementById('headerStatus').style.color = '#ff6b6b';
-      }
-    }
+<hr>
 
-    function updateMap() {
-      const region = document.getElementById('regionSelect').value;
-      const crimeType = document.getElementById('crimeTypeSelect').value;
+<h4>Alcohol Offences</h4>
+<div class="kpi" id="alcValue">0</div>
+<div id="alcChange"></div>
+</div>
 
-      let filtered = crimeData;
-      if (region !== 'all') {
-        filtered = filtered.filter(r => r.reporting_region.toLowerCase().includes(region));
-      }
-      if (crimeType !== 'all') {
-        filtered = filtered.filter(r => r.offence_type === crimeType);
-      }
+<div class="card">
+<h4>Monthly Trend</h4>
+<canvas id="trendChart"></canvas>
+</div>
 
-      updateCharts(filtered);
-    }
+<div class="card">
+<h4>Offence Types</h4>
+<canvas id="donutChart"></canvas>
+</div>
 
-    function resetView() {
-      document.getElementById('regionSelect').value = 'all';
-      document.getElementById('crimeTypeSelect').value = 'all';
-      updateMap();
-      map.setView([-19, 133], 6);
-    }
+</div>
 
-    function updateCharts(data = crimeData) {
-      // Crime Trend Chart
-      const monthlyTotals = {};
-      data.forEach(row => {
-        const month = row.year_month ? row.year_month.substring(0, 7) : 'Unknown';
-        monthlyTotals[month] = (monthlyTotals[month] || 0) + parseInt(row.offence_count || 0);
-      });
+<script>
 
-      const months = Object.keys(monthlyTotals).sort().slice(-12);
-      const counts = months.map(m => monthlyTotals[m]);
+let map
+let policeLayer
+let crimeData=[]
 
-      const ctx1 = document.getElementById('chart1').getContext('2d');
-      if (window.chart1) window.chart1.destroy();
-      window.chart1 = new Chart(ctx1, {
-        type: 'line',
-        data: {
-          labels: months,
-          datasets: [{
-            label: 'Total Offences',
-            data: counts,
-            borderColor: '#1f77b4',
-            backgroundColor: 'rgba(31, 119, 180, 0.1)',
-            fill: true,
-            tension: 0.3
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true } }
-        }
-      });
+let trendChart
+let donutChart
 
-      // Crime Type Distribution
-      const typeCount = {};
-      data.forEach(row => {
-        const type = row.offence_type || 'Other';
-        typeCount[type] = (typeCount[type] || 0) + parseInt(row.offence_count || 0);
-      });
+async function initDashboard(){
 
-      const topTypes = Object.entries(typeCount)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 8);
+const response = await fetch("nt_crime_statistics_dec_2025_FACT_OFFENCES.csv")
 
-      const ctx2 = document.getElementById('chart2').getContext('2d');
-      if (window.chart2) window.chart2.destroy();
-      window.chart2 = new Chart(ctx2, {
-        type: 'doughnut',
-        data: {
-          labels: topTypes.map(t => t[0]),
-          datasets: [{
-            data: topTypes.map(t => t[1]),
-            backgroundColor: [
-              '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
-              '#9467bd', '#8c564b', '#e377c2', '#7f7f7f'
-            ]
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom' } }
-        }
-      });
-    }
+const text = await response.text()
 
-    // Auto-initialize on page load
-    window.addEventListener('load', initDashboard);
-  </script>
+const parsed = Papa.parse(text,{
+header:true,
+dynamicTyping:true
+})
+
+crimeData = parsed.data.filter(r=>r.year_month)
+
+initFilters()
+
+initMap()
+
+applyFilters()
+
+}
+
+function initFilters(){
+
+const offenceSelect=document.getElementById("offenceSelect")
+
+const offences=[...new Set(crimeData.map(r=>r.offence_type))]
+
+offences.forEach(o=>{
+if(!o)return
+const opt=document.createElement("option")
+opt.value=o
+opt.textContent=o
+offenceSelect.appendChild(opt)
+})
+
+const months=[...new Set(crimeData.map(r=>r.year_month))].sort()
+
+const start=document.getElementById("startMonth")
+const end=document.getElementById("endMonth")
+
+months.forEach(m=>{
+
+let o1=document.createElement("option")
+o1.value=m
+o1.textContent=m
+start.appendChild(o1)
+
+let o2=document.createElement("option")
+o2.value=m
+o2.textContent=m
+end.appendChild(o2)
+
+})
+
+start.value=months[0]
+end.value=months[months.length-1]
+
+document.getElementById("asAt").innerText="Latest data: "+months[months.length-1]
+
+}
+
+function initMap(){
+
+map=L.map("map").setView([-19,133],6)
+
+L.tileLayer(
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+{attribution:"© OpenStreetMap"}
+).addTo(map)
+
+policeLayer=L.layerGroup()
+
+const policeStations=[
+{name:"Darwin Police",lat:-12.4634,lon:130.8456},
+{name:"Palmerston Police",lat:-12.4860,lon:130.9833},
+{name:"Alice Springs Police",lat:-23.6980,lon:133.8807}
+]
+
+policeStations.forEach(p=>{
+L.marker([p.lat,p.lon])
+.bindPopup(p.name)
+.addTo(policeLayer)
+})
+
+policeLayer.addTo(map)
+
+}
+
+function togglePolice(){
+
+if(map.hasLayer(policeLayer)){
+map.removeLayer(policeLayer)
+}else{
+map.addLayer(policeLayer)
+}
+
+}
+
+function applyFilters(){
+
+const region=document.getElementById("locationSelect").value
+const offence=document.getElementById("offenceSelect").value
+const start=document.getElementById("startMonth").value
+const end=document.getElementById("endMonth").value
+
+let filtered=crimeData
+
+filtered=filtered.filter(r=>r.year_month>=start && r.year_month<=end)
+
+if(region!=="all"){
+filtered=filtered.filter(r=>r.reporting_region.toLowerCase().includes(region))
+}
+
+if(offence!=="all"){
+filtered=filtered.filter(r=>r.offence_type===offence)
+}
+
+updateKPI(start,end)
+
+updateTrend(filtered)
+
+updateDonut(filtered)
+
+}
+
+function sumMonth(month,alcohol=false){
+
+let rows=crimeData.filter(r=>r.year_month===month)
+
+if(alcohol){
+rows=rows.filter(r=>Number(r.alcohol_flag)===1)
+}
+
+return rows.reduce((s,r)=>s+Number(r.offence_count||0),0)
+
+}
+
+function updateKPI(start,end){
+
+let startTotal=sumMonth(start)
+let endTotal=sumMonth(end)
+
+let startAlc=sumMonth(start,true)
+let endAlc=sumMonth(end,true)
+
+document.getElementById("totalValue").innerText=endTotal
+
+let pct=((endTotal-startTotal)/startTotal)*100
+document.getElementById("totalChange").innerText=pct.toFixed(2)+"%"
+
+document.getElementById("alcValue").innerText=endAlc
+
+let pct2=((endAlc-startAlc)/startAlc)*100
+document.getElementById("alcChange").innerText=pct2.toFixed(2)+"%"
+
+}
+
+function updateTrend(data){
+
+const monthly={}
+
+data.forEach(r=>{
+monthly[r.year_month]=(monthly[r.year_month]||0)+Number(r.offence_count)
+})
+
+const labels=Object.keys(monthly).sort()
+const values=labels.map(m=>monthly[m])
+
+if(trendChart) trendChart.destroy()
+
+trendChart=new Chart(document.getElementById("trendChart"),{
+type:"line",
+data:{
+labels:labels,
+datasets:[{
+label:"Offences",
+data:values,
+borderColor:"#1f77b4"
+}]
+},
+options:{responsive:true}
+})
+
+}
+
+function updateDonut(data){
+
+const bucket={}
+
+data.forEach(r=>{
+bucket[r.offence_type]=(bucket[r.offence_type]||0)+Number(r.offence_count)
+})
+
+const sorted=Object.entries(bucket)
+.sort((a,b)=>b[1]-a[1])
+.slice(0,8)
+
+const labels=sorted.map(x=>x[0])
+const values=sorted.map(x=>x[1])
+
+if(donutChart) donutChart.destroy()
+
+donutChart=new Chart(document.getElementById("donutChart"),{
+type:"doughnut",
+data:{
+labels:labels,
+datasets:[{data:values}]
+}
+})
+
+}
+
+window.addEventListener("load",initDashboard)
+
+</script>
+
 </body>
 </html>
