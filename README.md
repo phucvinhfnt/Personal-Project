@@ -25,7 +25,7 @@ Personal-Project/
 
 ### 🌍 Live Website (GitHub Pages)
 
-Your portfolio is now live! Visit it here:
+Please visit it here:
 **https://phucvinhfnt.github.io/Personal-Project/**
 
 The site is automatically deployed on every push to the `main` branch.
