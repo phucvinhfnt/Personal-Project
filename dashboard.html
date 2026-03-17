@@ -12,78 +12,77 @@
 
 <style>
   body { margin:0; font-family: Arial, sans-serif; background:#f4f6f9; }
-  .navbar {
+  .navbar{
     background:#1f3b73; color:#fff; padding:14px 18px;
     font-size:18px; font-weight:700;
     display:flex; align-items:center; justify-content:space-between;
   }
-  .navbar small { font-weight:400; opacity:0.9; }
+  .navbar small{ font-weight:400; opacity:0.9; }
 
-  .wrap { display:flex; height:70vh; }
-  .sidebar {
+  .wrap{ display:flex; height:70vh; }
+  .sidebar{
     width:340px; background:#1f3b73; color:#fff; padding:16px;
     box-sizing:border-box; overflow-y:auto;
   }
-  .sidebar h3 { margin:8px 0 12px; }
-  .control {
+  .sidebar h3{ margin:8px 0 12px; }
+  .control{
     margin:12px 0;
     background:rgba(255,255,255,0.08);
     padding:12px; border-radius:10px;
   }
-  label { display:block; font-size:12px; margin-bottom:6px; opacity:0.95; }
-  select { width:100%; padding:10px; border-radius:8px; border:none; outline:none; }
+  label{ display:block; font-size:12px; margin-bottom:6px; opacity:0.95; }
+  select{ width:100%; padding:10px; border-radius:8px; border:none; outline:none; }
 
-  .row { display:flex; gap:10px; }
-  .row > div { flex:1; }
+  .row{ display:flex; gap:10px; }
+  .row>div{ flex:1; }
 
-  .btn {
+  .btn{
     width:100%;
     padding:10px; border:none; border-radius:10px;
     background:#2e5aac; color:#fff; cursor:pointer;
     font-weight:700; margin-top:8px;
   }
-  .btn.secondary { background:#355fba; }
-  .btn:active { transform: translateY(1px); }
+  .btn.secondary{ background:#355fba; }
+  .btn:active{ transform: translateY(1px); }
 
-  #map { flex:1; }
+  #map{ flex:1; }
 
-  .dashboard {
+  .dashboard{
     height:30vh; background:#fff; border-top:1px solid #ddd;
     display:flex; gap:12px; padding:12px; box-sizing:border-box;
   }
-  .card {
+  .card{
     flex:1; background:#fff; border:1px solid #e6e6e6;
     border-radius:14px; padding:12px; box-shadow:0 2px 10px rgba(0,0,0,0.06);
-    position:relative;
-    overflow:hidden;
+    position:relative; overflow:hidden;
   }
-  .card h4 { margin:0 0 8px; font-size:14px; }
+  .card h4{ margin:0 0 8px; font-size:14px; }
 
-  .info-box {
+  .info-box{
     position:absolute; top:88px; right:18px;
     background:#fff; padding:10px 12px;
     border-radius:12px; box-shadow:0 2px 14px rgba(0,0,0,0.18);
     min-width:260px; z-index:999;
     font-size:13px;
   }
-  .pill {
+  .pill{
     display:inline-block; padding:2px 8px; border-radius:999px;
     background:#f0f0f0; font-size:11px; margin-top:6px;
   }
 
-  .kpiWrap { display:flex; align-items:baseline; gap:10px; margin-top:8px; }
-  .kpiVal { font-size:28px; font-weight:900; line-height:1; }
-  .kpiDelta { font-size:13px; font-weight:800; padding:3px 10px; border-radius:999px; }
-  .kpiSub { font-size:12px; opacity:0.75; margin-top:8px; }
-  .kpiTitle { font-size:13px; font-weight:900; margin-top:6px; }
+  .kpiWrap{ display:flex; align-items:baseline; gap:10px; margin-top:8px; }
+  .kpiVal{ font-size:28px; font-weight:900; line-height:1; }
+  .kpiDelta{ font-size:13px; font-weight:800; padding:3px 10px; border-radius:999px; }
+  .kpiSub{ font-size:12px; opacity:0.75; margin-top:8px; }
+  .kpiTitle{ font-size:13px; font-weight:900; margin-top:6px; }
 
-  canvas { width:100% !important; height:calc(100% - 26px) !important; }
+  canvas{ width:100% !important; height:calc(100% - 26px) !important; }
 </style>
 </head>
 
 <body>
   <div class="navbar">
-    <div>NT Crime Dashboard <small>Map + Date range + Real CSV Charts</small></div>
+    <div>NT Crime Dashboard <small>SA2 + Region outline</small></div>
     <div style="font-size:12px; opacity:0.9;" id="asAt">Loading…</div>
   </div>
 
@@ -97,7 +96,7 @@
         <div style="font-size:12px; margin-top:8px; opacity:0.95;">
           • <b>All NT</b>: SA2 view<br/>
           • <b>SA2 View</b>: SA2 view<br/>
-          • Select a region: show 7-region layer
+          • Select a region: SA2 filtered + region outline border
         </div>
       </div>
 
@@ -125,9 +124,10 @@
 
       <button class="btn" onclick="applyFilters()">Apply</button>
       <button class="btn secondary" onclick="togglePolice()">Police Stations (ON/OFF)</button>
+
       <div style="font-size:12px; margin-top:10px; opacity:0.95;">
-        Tip: Hover on map to see area name.<br/>
-        Tip: Click donut slice to auto-select offence type.
+        Tip: Hover on SA2 to see name.<br/>
+        Tip: Selecting region will show outline border.
       </div>
     </div>
 
@@ -136,7 +136,7 @@
 
   <div class="dashboard">
     <div class="card">
-      <h4>Chart 1 — End vs Start (same format)</h4>
+      <h4>Chart 1 — End vs Start</h4>
 
       <div class="kpiTitle">Total offences</div>
       <div class="kpiWrap">
@@ -156,12 +156,12 @@
     </div>
 
     <div class="card">
-      <h4>Trend (monthly totals in selected range)</h4>
+      <h4>Trend</h4>
       <canvas id="chart2"></canvas>
     </div>
 
     <div class="card">
-      <h4>Offence type share (Donut, Top 8 + Other)</h4>
+      <h4>Offence type share</h4>
       <canvas id="chart3"></canvas>
     </div>
   </div>
@@ -169,89 +169,38 @@
   <div id="info" class="info-box">Hover over an area</div>
 
 <script>
-  // =========================================================
-  // 1) CONFIG
-  // =========================================================
-  const CSV_PATH = "nt_crime_statistics_dec_2025_FACT_OFFENCES.csv";
+  // =============================
+  // CONFIG (GitHub Pages friendly)
+  // =============================
+  // Put these files in SAME folder as dashboard.html
+  const CSV_PATH     = "nt_crime_statistics_dec_2025_FACT_OFFENCES.csv";
+  const SA2_GEOJSON  = "nt_sa2.geojson";      // exported by your region.py (sa2_nt)
+  const REG_GEOJSON  = "nt_regions.geojson";  // exported by your region.py (regions dissolve)
 
-  // Replace these with real exported JSON from Python if available
-  const FALLBACK_LOCATIONS = [
-    "All NT", "SA2 View", "Darwin", "Palmerston", "Alice Springs",
-    "Katherine", "Tennant Creek", "Nhulunbuy", "NT Balance"
+  const LOCATIONS = [
+    "All NT","SA2 View",
+    "Darwin","Palmerston","Alice Springs","Katherine","Tennant Creek","Nhulunbuy","NT Balance"
   ];
 
-  const FALLBACK_REGION_BOUNDS = {
-    "Darwin": [[-12.7,130.7],[-12.2,131.2]],
-    "Palmerston": [[-12.65,130.85],[-12.35,131.1]],
-    "Alice Springs": [[-24.05,133.55],[-23.45,134.15]],
-    "Katherine": [[-14.8,131.9],[-14.1,132.6]],
-    "Tennant Creek": [[-20.0,133.8],[-19.3,134.5]],
-    "Nhulunbuy": [[-12.5,136.4],[-11.9,137.1]],
-    "NT Balance": [[-26.0,129.0],[-10.0,138.0]]
-  };
+  // =============================
+  // GLOBALS
+  // =============================
+  let DATA_ROWS = [];
+  let YM_LIST = [];
+  let OFFENCES = ["All offences"];
 
-  const FALLBACK_ALL_NT_BOUNDS = [[-26.0,129.0],[-10.0,138.0]];
+  let map;
+  let policeLayer;
+  let policeVisible = true;
 
-  // If you have real GeoJSON from Python, paste into these variables
-  const sa2Data = {
-    "type": "FeatureCollection",
-    "features": []
-  };
+  let sa2Geo = null;       // full SA2 GeoJSON loaded
+  let regGeo = null;       // region GeoJSON loaded
 
-  const regionData = {
-    "type": "FeatureCollection",
-    "features": [
-      {
-        "type":"Feature",
-        "properties":{"RegionGroup":"Darwin","base_color":"#1f77b4"},
-        "geometry":{"type":"Polygon","coordinates":[[
-          [130.7,-12.7],[131.2,-12.7],[131.2,-12.2],[130.7,-12.2],[130.7,-12.7]
-        ]]}
-      },
-      {
-        "type":"Feature",
-        "properties":{"RegionGroup":"Palmerston","base_color":"#2ca02c"},
-        "geometry":{"type":"Polygon","coordinates":[[
-          [130.85,-12.65],[131.1,-12.65],[131.1,-12.35],[130.85,-12.35],[130.85,-12.65]
-        ]]}
-      },
-      {
-        "type":"Feature",
-        "properties":{"RegionGroup":"Alice Springs","base_color":"#ff7f0e"},
-        "geometry":{"type":"Polygon","coordinates":[[
-          [133.55,-24.05],[134.15,-24.05],[134.15,-23.45],[133.55,-23.45],[133.55,-24.05]
-        ]]}
-      },
-      {
-        "type":"Feature",
-        "properties":{"RegionGroup":"Katherine","base_color":"#9467bd"},
-        "geometry":{"type":"Polygon","coordinates":[[
-          [131.9,-14.8],[132.6,-14.8],[132.6,-14.1],[131.9,-14.1],[131.9,-14.8]
-        ]]}
-      },
-      {
-        "type":"Feature",
-        "properties":{"RegionGroup":"Tennant Creek","base_color":"#d62728"},
-        "geometry":{"type":"Polygon","coordinates":[[
-          [133.8,-20.0],[134.5,-20.0],[134.5,-19.3],[133.8,-19.3],[133.8,-20.0]
-        ]]}
-      },
-      {
-        "type":"Feature",
-        "properties":{"RegionGroup":"Nhulunbuy","base_color":"#8c564b"},
-        "geometry":{"type":"Polygon","coordinates":[[
-          [136.4,-12.5],[137.1,-12.5],[137.1,-11.9],[136.4,-11.9],[136.4,-12.5]
-        ]]}
-      },
-      {
-        "type":"Feature",
-        "properties":{"RegionGroup":"NT Balance","base_color":"#7f7f7f"},
-        "geometry":{"type":"Polygon","coordinates":[[
-          [129.0,-26.0],[138.0,-26.0],[138.0,-10.0],[129.0,-10.0],[129.0,-26.0]
-        ]]}
-      }
-    ]
-  };
+  let sa2Layer = null;     // current SA2 layer (filtered)
+  let outlineLayer = null; // region outline (border)
+
+  let chart2;
+  let chart3;
 
   const policeStations = [
     {"name":"Darwin Police Station","lat":-12.4634,"lon":130.8456},
@@ -262,74 +211,46 @@
     {"name":"Nhulunbuy Police Station","lat":-12.1800,"lon":136.7800}
   ];
 
-  // =========================================================
-  // 2) GLOBALS
-  // =========================================================
-  let DATA_ROWS = [];
-  let YM_LIST = [];
-  let OFFENCES = ["All offences"];
-  let LOCATIONS = FALLBACK_LOCATIONS;
-  let ALL_NT_BOUNDS = FALLBACK_ALL_NT_BOUNDS;
-  let REGION_BOUNDS = FALLBACK_REGION_BOUNDS;
-
-  let map;
-  let policeLayer;
-  let policeVisible = true;
-  let sa2Layer;
-  let regionLayer;
-  let chart2;
-  let chart3;
-
   const BLUE_SHADES = ["#dbeafe","#bfdbfe","#93c5fd","#60a5fa","#3b82f6","#2563eb","#1d4ed8","#1e40af","#172554","#94a3b8"];
 
-  // =========================================================
-  // 3) HELPERS
-  // =========================================================
+  // =============================
+  // HELPERS
+  // =============================
   function setInfo(html) {
     document.getElementById("info").innerHTML = html || "Hover over an area";
   }
-
   function toNum(x, d=0) {
     const n = Number(x);
     return Number.isFinite(n) ? n : d;
   }
-
   function ymToIndex(ym) {
     const y = Number(String(ym).slice(0,4));
     const m = Number(String(ym).slice(5,7));
     return y * 12 + (m - 1);
   }
-
   function indexToYM(idx) {
     const y = Math.floor(idx / 12);
     const m = (idx % 12) + 1;
     return `${y}-${String(m).padStart(2,"0")}`;
   }
-
-  function normalizeRegion(v) {
-    return String(v || "").trim().toLowerCase();
-  }
-
-  function matchRegion(reportingRegion, selectedLocation) {
-    const rr = normalizeRegion(reportingRegion);
-    const loc = normalizeRegion(selectedLocation);
-
-    if (loc === "all nt" || loc === "sa2 view") return true;
-    if (rr === loc) return true;
-    if (rr.includes(loc)) return true;
-
-    // Extra friendly matching
-    if (loc === "alice springs" && rr.includes("alice")) return true;
-    if (loc === "nt balance" && (rr.includes("balance") || rr.includes("other"))) return true;
-
-    return false;
-  }
-
   function inRange(r, startYM, endYM) {
     const ym = String(r.year_month || "");
     if (!ym || ym.length < 7) return false;
     const idx = ymToIndex(ym);
     return idx >= ymToIndex(startYM) && idx <= ymToIndex(endYM);
+  }
+
+  function normalize(v){ return String(v||"").trim().toLowerCase(); }
+
+  function matchRegion(reportingRegion, selectedLocation) {
+    const rr = normalize(reportingRegion);
+    const loc = normalize(selectedLocation);
+    if (loc === "all nt" || loc === "sa2 view") return true;
+    if (rr === loc) return true;
+    if (rr.includes(loc)) return true;
+    if (loc === "alice springs" && rr.includes("alice")) return true;
+    if (loc === "nt balance" && (rr.includes("balance") || rr.includes("other"))) return true;
+    return false;
   }
 
   function passFilters(r, f) {
@@ -341,15 +262,185 @@
 
   function setBadge(el, pct, up) {
     el.textContent = (up ? "▲ " : "▼ ") + pct.toFixed(2) + "%";
-    if (up) {
-      el.style.background = "#ffe5e5";
-      el.style.color = "#b00020";
-    } else {
-      el.style.background = "#e6f7ea";
-      el.style.color = "#1b5e20";
+    if (up) { el.style.background = "#ffe5e5"; el.style.color = "#b00020"; }
+    else { el.style.background = "#e6f7ea"; el.style.color = "#1b5e20"; }
+  }
+
+  // =============================
+  // LOAD DATA
+  // =============================
+  async function loadCSV() {
+    const res = await fetch(CSV_PATH);
+    const csvText = await res.text();
+    const parsed = Papa.parse(csvText, { header:true, dynamicTyping:true, skipEmptyLines:true });
+
+    DATA_ROWS = parsed.data
+      .filter(r => String(r.year_month || "").match(/^\d{4}-\d{2}$/))
+      .map(r => ({
+        reporting_region: String(r.reporting_region || "").trim(),
+        offence_type: String(r.offence_type || "").trim(),
+        year_month: String(r.year_month || "").trim(),
+        offence_count: toNum(r.offence_count, 0),
+        alcohol_flag: toNum(r.alcohol_flag, 0)
+      }));
+
+    OFFENCES = ["All offences"].concat(
+      [...new Set(DATA_ROWS.map(r => r.offence_type).filter(x => x))].sort((a,b)=>a.localeCompare(b))
+    );
+
+    YM_LIST = [...new Set(DATA_ROWS.map(r => r.year_month))].sort();
+
+    const maxYM = YM_LIST[YM_LIST.length - 1];
+    document.getElementById("asAt").textContent = "As at: " + maxYM;
+  }
+
+  async function loadGeo() {
+    const [sa2Res, regRes] = await Promise.all([fetch(SA2_GEOJSON), fetch(REG_GEOJSON)]);
+    sa2Geo = await sa2Res.json();
+    regGeo = await regRes.json();
+  }
+
+  // =============================
+  // CONTROLS
+  // =============================
+  function initControls() {
+    const locationSelect = document.getElementById("locationSelect");
+    const offenceSelect  = document.getElementById("offenceSelect");
+    const startSelect    = document.getElementById("startSelect");
+    const endSelect      = document.getElementById("endSelect");
+
+    locationSelect.innerHTML = "";
+    offenceSelect.innerHTML = "";
+    startSelect.innerHTML = "";
+    endSelect.innerHTML = "";
+
+    LOCATIONS.forEach(x => {
+      const opt = document.createElement("option");
+      opt.value = x; opt.textContent = x;
+      locationSelect.appendChild(opt);
+    });
+
+    OFFENCES.forEach(x => {
+      const opt = document.createElement("option");
+      opt.value = x; opt.textContent = x;
+      offenceSelect.appendChild(opt);
+    });
+
+    YM_LIST.forEach(ym => {
+      const a = document.createElement("option"); a.value = ym; a.textContent = ym; startSelect.appendChild(a);
+      const b = document.createElement("option"); b.value = ym; b.textContent = ym; endSelect.appendChild(b);
+    });
+
+    const maxYM = YM_LIST[YM_LIST.length - 1];
+    const latestYear = String(maxYM).slice(0,4);
+    const defaultStart = `${latestYear}-01`;
+    startSelect.value = YM_LIST.includes(defaultStart) ? defaultStart : YM_LIST[0];
+    endSelect.value = maxYM;
+
+    function clamp() {
+      const sIdx = ymToIndex(startSelect.value);
+      const eIdx = ymToIndex(endSelect.value);
+      if (eIdx < sIdx) endSelect.value = startSelect.value;
+    }
+    startSelect.addEventListener("change", clamp);
+    endSelect.addEventListener("change", clamp);
+
+    locationSelect.value = "SA2 View";
+    offenceSelect.value = "All offences";
+  }
+
+  // =============================
+  // MAP
+  // =============================
+  function initMap() {
+    map = L.map("map").setView([-19,133], 6);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap"
+    }).addTo(map);
+
+    policeLayer = L.layerGroup();
+    policeStations.forEach(st => {
+      L.marker([st.lat, st.lon]).bindTooltip(st.name).addTo(policeLayer);
+    });
+    policeLayer.addTo(map);
+  }
+
+  function togglePolice() {
+    if (policeVisible) map.removeLayer(policeLayer);
+    else policeLayer.addTo(map);
+    policeVisible = !policeVisible;
+  }
+
+  // Build SA2 layer filtered by region (and keep SA2 boundaries visible)
+  function drawSA2(filters) {
+    if (sa2Layer) map.removeLayer(sa2Layer);
+
+    // IMPORTANT: your exported nt_sa2.geojson likely has property "Region" (from your script)
+    // and also "SA2_NAME21"
+    const isRegion = (filters.location !== "All NT" && filters.location !== "SA2 View");
+    const selected = filters.location;
+
+    const filteredFeatures = (sa2Geo.features || []).filter(ft => {
+      const reg = ft.properties?.Region || ft.properties?.RegionGroup || "";
+      if (!isRegion) return true;
+      return normalize(reg) === normalize(selected);
+    });
+
+    const sa2Filtered = { type:"FeatureCollection", features: filteredFeatures };
+
+    sa2Layer = L.geoJSON(sa2Filtered, {
+      style: (feature) => ({
+        color: "#111827",
+        weight: 0.8,           // SA2 borders visible
+        fillColor: feature.properties?.base_color || "#93c5fd",
+        fillOpacity: 0.45
+      }),
+      onEachFeature: (feature, layer) => {
+        const name = feature.properties?.SA2_NAME21 || feature.properties?.SA2_NAME_2021 || "SA2";
+        layer.on({
+          mouseover: (e) => {
+            e.target.setStyle({ weight: 2, fillOpacity: 0.7 });
+            setInfo(`<b>SA2:</b> ${name}`);
+          },
+          mouseout: (e) => {
+            sa2Layer.resetStyle(e.target);
+            setInfo();
+          }
+        });
+      }
+    }).addTo(map);
+
+    // zoom
+    if (filteredFeatures.length) {
+      map.fitBounds(sa2Layer.getBounds());
     }
   }
 
+  // Draw outline border for selected region (ONLY when user picks a region)
+  function drawRegionOutline(filters) {
+    if (outlineLayer) map.removeLayer(outlineLayer);
+
+    const isRegion = (filters.location !== "All NT" && filters.location !== "SA2 View");
+    if (!isRegion) return; // no outline in All NT / SA2 View
+
+    const selected = filters.location;
+
+    const ft = (regGeo.features || []).find(f => normalize(f.properties?.Region || f.properties?.RegionGroup) === normalize(selected));
+    if (!ft) return;
+
+    outlineLayer = L.geoJSON(ft, {
+      style: () => ({
+        color: "#0b2f6b",
+        weight: 4,        // thick outline
+        fillOpacity: 0     // outline only
+      })
+    }).addTo(map);
+  }
+
+  // =============================
+  // KPI + CHARTS
+  // =============================
   function sumMonth(rows, f, monthYM, alcoholOnly=false) {
     let total = 0;
     for (const r of rows) {
@@ -362,243 +453,58 @@
     return total;
   }
 
-  // =========================================================
-  // 4) LOAD CSV
-  // =========================================================
-  async function loadData() {
-    const response = await fetch(CSV_PATH);
-    const csvText = await response.text();
-
-    const parsed = Papa.parse(csvText, {
-      header: true,
-      dynamicTyping: true,
-      skipEmptyLines: true
-    });
-
-    DATA_ROWS = parsed.data
-      .filter(r => String(r.year_month || "").match(/^\d{4}-\d{2}$/))
-      .map(r => ({
-        reporting_region: String(r.reporting_region || "").trim(),
-        offence_type: String(r.offence_type || "").trim(),
-        year: toNum(r.year, 0),
-        month: toNum(r.month, 0),
-        year_month: String(r.year_month || "").trim(),
-        offence_count: toNum(r.offence_count, 0),
-        alcohol_flag: toNum(r.alcohol_flag, 0)
-      }));
-
-    OFFENCES = ["All offences"].concat(
-      [...new Set(DATA_ROWS.map(r => r.offence_type).filter(x => x))]
-        .sort((a,b) => a.localeCompare(b))
-    );
-
-    YM_LIST = [...new Set(DATA_ROWS.map(r => r.year_month))].sort();
-  }
-
-  // =========================================================
-  // 5) POPULATE CONTROLS
-  // =========================================================
-  function initControls() {
-    const locationSelect = document.getElementById("locationSelect");
-    const offenceSelect = document.getElementById("offenceSelect");
-    const startSelect = document.getElementById("startSelect");
-    const endSelect = document.getElementById("endSelect");
-
-    locationSelect.innerHTML = "";
-    offenceSelect.innerHTML = "";
-    startSelect.innerHTML = "";
-    endSelect.innerHTML = "";
-
-    LOCATIONS.forEach(x => {
-      const opt = document.createElement("option");
-      opt.value = x;
-      opt.textContent = x;
-      locationSelect.appendChild(opt);
-    });
-
-    OFFENCES.forEach(x => {
-      const opt = document.createElement("option");
-      opt.value = x;
-      opt.textContent = x;
-      offenceSelect.appendChild(opt);
-    });
-
-    YM_LIST.forEach(ym => {
-      const opt1 = document.createElement("option");
-      opt1.value = ym;
-      opt1.textContent = ym;
-      startSelect.appendChild(opt1);
-
-      const opt2 = document.createElement("option");
-      opt2.value = ym;
-      opt2.textContent = ym;
-      endSelect.appendChild(opt2);
-    });
-
-    const maxYM = YM_LIST[YM_LIST.length - 1];
-    const latestYear = String(maxYM).slice(0,4);
-    const defaultStart = `${latestYear}-01`;
-
-    startSelect.value = YM_LIST.includes(defaultStart) ? defaultStart : YM_LIST[0];
-    endSelect.value = maxYM;
-
-    document.getElementById("asAt").textContent = "As at: " + maxYM;
-
-    function clampRange() {
-      const sIdx = ymToIndex(startSelect.value);
-      const eIdx = ymToIndex(endSelect.value);
-      if (eIdx < sIdx) endSelect.value = startSelect.value;
-    }
-
-    startSelect.addEventListener("change", clampRange);
-    endSelect.addEventListener("change", clampRange);
-
-    locationSelect.value = "SA2 View";
-    offenceSelect.value = "All offences";
-  }
-
-  // =========================================================
-  // 6) MAP
-  // =========================================================
-  function initMap() {
-    map = L.map("map").setView([-19,133], 6);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap"
-    }).addTo(map);
-
-    policeLayer = L.layerGroup();
-    policeStations.forEach(function(st) {
-      L.marker([st.lat, st.lon])
-        .bindTooltip(st.name)
-        .bindPopup("<b>" + st.name + "</b><br>Lat: " + st.lat + "<br>Lon: " + st.lon)
-        .addTo(policeLayer);
-    });
-    policeLayer.addTo(map);
-
-    function styleSA2(feature) {
-      return {
-        color: "black",
-        weight: 0.5,
-        fillColor: feature.properties?.base_color || "#93c5fd",
-        fillOpacity: 0.6
-      };
-    }
-
-    function onEachSA2(feature, layer) {
-      layer.on({
-        mouseover: function(e) {
-          e.target.setStyle({weight:2, fillOpacity:0.85});
-          setInfo("<b>SA2:</b> " + (feature.properties?.SA2_NAME21 || "Unknown"));
-        },
-        mouseout: function(e) {
-          sa2Layer.resetStyle(e.target);
-          setInfo();
-        }
-      });
-    }
-
-    sa2Layer = L.geoJSON(sa2Data, {
-      style: styleSA2,
-      onEachFeature: onEachSA2
-    }).addTo(map);
-
-    function styleRegion(feature) {
-      return {
-        color: "black",
-        weight: 1,
-        fillColor: feature.properties?.base_color || "#7f7f7f",
-        fillOpacity: 0.65
-      };
-    }
-
-    function onEachRegion(feature, layer) {
-      layer.on({
-        mouseover: function(e) {
-          e.target.setStyle({weight:2, fillOpacity:0.9});
-          setInfo("<b>Region:</b> " + (feature.properties?.RegionGroup || "Unknown"));
-        },
-        mouseout: function(e) {
-          regionLayer.resetStyle(e.target);
-          setInfo();
-        }
-      });
-    }
-
-    regionLayer = L.geoJSON(regionData, {
-      style: styleRegion,
-      onEachFeature: onEachRegion
-    });
-  }
-
-  function togglePolice() {
-    if (policeVisible) map.removeLayer(policeLayer);
-    else policeLayer.addTo(map);
-    policeVisible = !policeVisible;
-  }
-
-  // =========================================================
-  // 7) KPI
-  // =========================================================
   function updateKPI(filters) {
     const totCountEl = document.getElementById("totCount");
     const totBadgeEl = document.getElementById("totBadge");
-    const totSubEl = document.getElementById("totSub");
+    const totSubEl   = document.getElementById("totSub");
 
     const alcCountEl = document.getElementById("alcCount");
     const alcBadgeEl = document.getElementById("alcBadge");
-    const alcSubEl = document.getElementById("alcSub");
+    const alcSubEl   = document.getElementById("alcSub");
 
     const startYM = filters.startYM;
-    const endYM = filters.endYM;
+    const endYM   = filters.endYM;
 
     const totStart = sumMonth(DATA_ROWS, filters, startYM, false);
-    const totEnd = sumMonth(DATA_ROWS, filters, endYM, false);
+    const totEnd   = sumMonth(DATA_ROWS, filters, endYM, false);
     totCountEl.textContent = totEnd.toLocaleString();
 
     if (totStart <= 0 && totEnd <= 0) {
       totBadgeEl.textContent = "No data";
-      totBadgeEl.style.background = "#f0f0f0";
-      totBadgeEl.style.color = "#333";
+      totBadgeEl.style.background = "#f0f0f0"; totBadgeEl.style.color = "#333";
       totSubEl.textContent = `No offences found in ${startYM} and ${endYM}.`;
     } else if (totStart <= 0 && totEnd > 0) {
       totBadgeEl.textContent = "▲ increase";
-      totBadgeEl.style.background = "#ffe5e5";
-      totBadgeEl.style.color = "#b00020";
+      totBadgeEl.style.background = "#ffe5e5"; totBadgeEl.style.color = "#b00020";
       totSubEl.textContent = `Start (${startYM}) = 0, End (${endYM}) = ${totEnd.toLocaleString()}`;
     } else {
       const pct = ((totEnd - totStart) / totStart) * 100;
       setBadge(totBadgeEl, Math.abs(pct), pct >= 0);
-      totSubEl.textContent = `Start (${startYM}) = ${totStart.toLocaleString()} vs End (${endYM}) = ${totEnd.toLocaleString()}`;
       totBadgeEl.textContent = (pct < 0 ? "▼ " : "▲ ") + Math.abs(pct).toFixed(2) + "%";
+      totSubEl.textContent = `Start (${startYM}) = ${totStart.toLocaleString()} vs End (${endYM}) = ${totEnd.toLocaleString()}`;
     }
 
     const alcStart = sumMonth(DATA_ROWS, filters, startYM, true);
-    const alcEnd = sumMonth(DATA_ROWS, filters, endYM, true);
+    const alcEnd   = sumMonth(DATA_ROWS, filters, endYM, true);
     alcCountEl.textContent = alcEnd.toLocaleString();
 
     if (alcStart <= 0 && alcEnd <= 0) {
       alcBadgeEl.textContent = "No data";
-      alcBadgeEl.style.background = "#f0f0f0";
-      alcBadgeEl.style.color = "#333";
+      alcBadgeEl.style.background = "#f0f0f0"; alcBadgeEl.style.color = "#333";
       alcSubEl.textContent = `No alcohol-involved offences in ${startYM} and ${endYM}.`;
     } else if (alcStart <= 0 && alcEnd > 0) {
       alcBadgeEl.textContent = "▲ increase";
-      alcBadgeEl.style.background = "#ffe5e5";
-      alcBadgeEl.style.color = "#b00020";
+      alcBadgeEl.style.background = "#ffe5e5"; alcBadgeEl.style.color = "#b00020";
       alcSubEl.textContent = `Start (${startYM}) = 0, End (${endYM}) = ${alcEnd.toLocaleString()}`;
     } else {
       const pct = ((alcEnd - alcStart) / alcStart) * 100;
       setBadge(alcBadgeEl, Math.abs(pct), pct >= 0);
-      alcSubEl.textContent = `Start (${startYM}) = ${alcStart.toLocaleString()} vs End (${endYM}) = ${alcEnd.toLocaleString()}`;
       alcBadgeEl.textContent = (pct < 0 ? "▼ " : "▲ ") + Math.abs(pct).toFixed(2) + "%";
+      alcSubEl.textContent = `Start (${startYM}) = ${alcStart.toLocaleString()} vs End (${endYM}) = ${alcEnd.toLocaleString()}`;
     }
   }
 
-  // =========================================================
-  // 8) CHART BUILDERS
-  // =========================================================
-  function buildTrend(rows, filters) {
+  function buildTrend(filters) {
     const startIdx = ymToIndex(filters.startYM);
     const endIdx = ymToIndex(filters.endYM);
 
@@ -608,26 +514,24 @@
       labels.push(indexToYM(idx));
       values.push(0);
     }
-
     const pos = new Map(labels.map((x,i)=>[x,i]));
 
-    for (const r of rows) {
+    for (const r of DATA_ROWS) {
       if (!passFilters(r, filters)) continue;
       const ym = String(r.year_month || "");
       const i = pos.get(ym);
       if (i !== undefined) values[i] += toNum(r.offence_count);
     }
-
     return { labels, values };
   }
 
-  function buildOffenceTypeDonut(rows, filters, topN=8) {
-    const f3 = { ...filters, offence: "All offences" };
-
+  function buildDonut(filters, topN=8) {
     const bucket = new Map();
-    for (const r of rows) {
+    for (const r of DATA_ROWS) {
+      // ignore offence filter for donut
+      const f3 = { ...filters, offence: "All offences" };
       if (!passFilters(r, f3)) continue;
-      const k = (r.offence_type && String(r.offence_type).trim()) ? r.offence_type : "(Unknown)";
+      const k = r.offence_type || "(Unknown)";
       bucket.set(k, (bucket.get(k) || 0) + toNum(r.offence_count));
     }
 
@@ -637,10 +541,7 @@
 
     const labels = top.map(x=>x[0]);
     const values = top.map(x=>x[1]);
-    if (other > 0) {
-      labels.push("Other");
-      values.push(other);
-    }
+    if (other > 0) { labels.push("Other"); values.push(other); }
 
     return { labels, values };
   }
@@ -651,51 +552,24 @@
 
     chart2 = new Chart(ctx2, {
       type: "line",
-      data: {
-        labels: [],
-        datasets: [{
-          label: "Total offences",
-          data: [],
-          fill: false,
-          borderColor: "#1f77b4",
-          tension: 0.2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true },
-          x: { title: { display: true, text: "Year-Month" } }
-        }
-      }
+      data: { labels: [], datasets: [{ label:"Total offences", data: [], borderColor:"#1f77b4", tension:0.2 }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true } } }
     });
 
     chart3 = new Chart(ctx3, {
       type: "doughnut",
-      data: {
-        labels: [],
-        datasets: [{
-          data: [],
-          backgroundColor: []
-        }]
-      },
+      data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: "62%",
-        plugins: { legend: { position: "bottom" } },
-        onClick: (evt, elements) => {
-          if (!elements || !elements.length) return;
-          const idx = elements[0].index;
+        responsive:true,
+        maintainAspectRatio:false,
+        cutout:"62%",
+        plugins:{ legend:{ position:"bottom" } },
+        onClick: (evt, els) => {
+          if (!els || !els.length) return;
+          const idx = els[0].index;
           const label = chart3.data.labels[idx];
-          if (!label) return;
-
           const offenceSelect = document.getElementById("offenceSelect");
-          if (label === "Other") offenceSelect.value = "All offences";
-          else offenceSelect.value = label;
-
+          offenceSelect.value = (label === "Other") ? "All offences" : label;
           applyFilters();
         }
       }
@@ -705,70 +579,55 @@
   function updateCharts(filters) {
     updateKPI(filters);
 
-    const trend = buildTrend(DATA_ROWS, filters);
+    const trend = buildTrend(filters);
     chart2.data.labels = trend.labels;
     chart2.data.datasets[0].data = trend.values;
     chart2.update();
 
-    const donut = buildOffenceTypeDonut(DATA_ROWS, filters, 8);
+    const donut = buildDonut(filters, 8);
     chart3.data.labels = donut.labels;
     chart3.data.datasets[0].data = donut.values;
-    chart3.data.datasets[0].backgroundColor = donut.labels.map((_, i) => BLUE_SHADES[i % BLUE_SHADES.length]);
+    chart3.data.datasets[0].backgroundColor = donut.labels.map((_,i)=>BLUE_SHADES[i % BLUE_SHADES.length]);
     chart3.update();
   }
 
-  // =========================================================
-  // 9) APPLY FILTERS
-  // =========================================================
+  // =============================
+  // APPLY FILTERS (NEW LOGIC)
+  // =============================
   function applyFilters() {
-    const locationSelect = document.getElementById("locationSelect");
-    const offenceSelect = document.getElementById("offenceSelect");
-    const startSelect = document.getElementById("startSelect");
-    const endSelect = document.getElementById("endSelect");
+    const loc = document.getElementById("locationSelect").value;
+    const off = document.getElementById("offenceSelect").value;
+    const startYM = document.getElementById("startSelect").value;
+    const endYM = document.getElementById("endSelect").value;
 
-    const loc = locationSelect.value;
-    const off = offenceSelect.value;
-    const startYM = startSelect.value;
-    const endYM = endSelect.value;
-
-    const isRegion = (loc !== "All NT" && loc !== "SA2 View");
-
-    if (isRegion) {
-      if (map.hasLayer(sa2Layer)) map.removeLayer(sa2Layer);
-      if (!map.hasLayer(regionLayer)) regionLayer.addTo(map);
-      const b = REGION_BOUNDS[loc];
-      if (b) map.fitBounds(b);
-      setInfo("<b>Mode:</b> 7 Regions<br/><span class='pill'>" + loc + "</span>");
-    } else {
-      if (map.hasLayer(regionLayer)) map.removeLayer(regionLayer);
-      if (!map.hasLayer(sa2Layer)) sa2Layer.addTo(map);
-      map.fitBounds(ALL_NT_BOUNDS);
-      setInfo("<b>Mode:</b> SA2 View<br/><span class='pill'>All NT</span>");
-    }
-
-    const sIdx = ymToIndex(startYM);
-    const eIdx = ymToIndex(endYM);
+    const sIdx = ymToIndex(startYM), eIdx = ymToIndex(endYM);
     const s = (eIdx < sIdx) ? endYM : startYM;
     const e = (eIdx < sIdx) ? startYM : endYM;
 
-    if (s !== startYM) startSelect.value = s;
-    if (e !== endYM) endSelect.value = e;
+    if (s !== startYM) document.getElementById("startSelect").value = s;
+    if (e !== endYM) document.getElementById("endSelect").value = e;
 
-    const filters = {
-      location: loc,
-      offence: off,
-      startYM: s,
-      endYM: e
-    };
+    const filters = { location: loc, offence: off, startYM: s, endYM: e };
+
+    // ✅ Always draw SA2 (full or filtered)
+    drawSA2(filters);
+
+    // ✅ Draw outline border ONLY when a region is selected
+    drawRegionOutline(filters);
+
+    // update info label
+    const isRegion = (loc !== "All NT" && loc !== "SA2 View");
+    if (isRegion) setInfo(`<b>Mode:</b> SA2 filtered<br/><span class="pill">${loc} outline</span>`);
+    else setInfo(`<b>Mode:</b> SA2 View<br/><span class="pill">All NT</span>`);
 
     updateCharts(filters);
   }
 
-  // =========================================================
-  // 10) INIT
-  // =========================================================
+  // =============================
+  // INIT
+  // =============================
   async function initDashboard() {
-    await loadData();
+    await Promise.all([loadCSV(), loadGeo()]);
     initControls();
     initMap();
     initCharts();
