@@ -2,9 +2,9 @@
   // CONFIG (GitHub Pages friendly)
   // =============================
   // Put these files in SAME folder as dashboard.html
-  const CSV_PATH     = "nt_crime_statistics_dec_2025_FACT_OFFENCES.csv";
-  const SA2_GEOJSON  = "nt_sa2.geojson";      // exported by your region.py (sa2_nt)
-  const REG_GEOJSON  = "nt_regions.geojson";  // exported by your region.py (regions dissolve)
+  const CSV_PATH     = "data/nt_crime_statistics_dec_2025_FACT_OFFENCES.csv";
+  const SA2_GEOJSON  = "data/nt_sa2.geojson";      // exported by your region.py (sa2_nt)
+  const REG_GEOJSON  = "data/nt_regions.geojson";  // exported by your region.py (regions dissolve)
 
   const LOCATIONS = [
     "All NT","SA2 View",
