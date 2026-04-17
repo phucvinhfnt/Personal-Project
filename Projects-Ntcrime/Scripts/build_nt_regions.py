@@ -4,17 +4,31 @@
 # =========================================================
 
 import geopandas as gpd
+import os
 
 
 # =========================================================
-# 1 LOAD SA2 SHAPEFILE
+# 1 LOAD SA2 SHAPEFILE OR GEOJSON
 # =========================================================
 
-zip_path = "SA2_2021_AUST_SHP_GDA2020.zip"
+output_file = "data/nt_regions.geojson"
 
-print("Loading SA2 shapefile...")
+# Check if output already exists
+if os.path.exists(output_file):
+    print(f"Output file {output_file} already exists. Skipping processing.")
+    exit(0)
 
-sa2 = gpd.read_file(f"zip://{zip_path}")
+# Try to load from existing GeoJSON first, fallback to shapefile
+geojson_path = "data/nt_sa2.geojson"
+
+try:
+    print("Loading SA2 from existing GeoJSON...")
+    sa2 = gpd.read_file(geojson_path)
+    print("Loaded SA2 from GeoJSON")
+except FileNotFoundError:
+    print("GeoJSON not found, trying shapefile...")
+    zip_path = "SA2_2021_AUST_SHP_GDA2020.zip"
+    sa2 = gpd.read_file(f"zip://{zip_path}")
 
 print("Total SA2 polygons:", len(sa2))
 
@@ -97,7 +111,7 @@ print(regions["Region"])
 output_file = "nt_regions.geojson"
 
 regions.to_file(
-    output_file,
+    "data/nt_regions.geojson",
     driver="GeoJSON"
 )
 

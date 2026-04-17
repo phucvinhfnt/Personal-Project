@@ -6,7 +6,7 @@
 import os, re
 import pandas as pd
 
-INPUT_CSV = "/workspaces/Personal-Project/nt_crime_statistics_dec_2025.csv"
+INPUT_CSV = "data/nt_crime_statistics_dec_2025.xlsx"
 BASE = os.path.splitext(os.path.basename(INPUT_CSV))[0]
 OUTPUT_XLSX = f"/workspaces/Personal-Project/{BASE}_cleaned.xlsx"
 OUTPUT_CSV  = f"/workspaces/Personal-Project/{BASE}_FACT_OFFENCES.csv"
@@ -15,9 +15,16 @@ if not os.path.exists(INPUT_CSV):
     raise FileNotFoundError(f"File not found: {INPUT_CSV}")
 
 # ----------------------------
-# 1) LOAD RAW CSV
+# 1) LOAD RAW CSV / EXCEL
 # ----------------------------
-df_raw = pd.read_csv(INPUT_CSV, dtype=str, encoding="utf-8", low_memory=False)
+extension = os.path.splitext(INPUT_CSV)[1].lower()
+if extension in [".xls", ".xlsx"]:
+    df_raw = pd.read_excel(INPUT_CSV, dtype=str)
+elif extension in [".csv", ".txt"]:
+    df_raw = pd.read_csv(INPUT_CSV, dtype=str, encoding="utf-8", low_memory=False)
+else:
+    raise ValueError(f"Unsupported input file type: {extension}")
+
 df_raw = df_raw.rename(columns=lambda c: c.strip() if isinstance(c, str) else c)
 
 print("✅ RAW rows:", len(df_raw))
