@@ -1,101 +1,95 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8"/>
-<title>NT Crime Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-
-<!-- ✅ YOUR CSS -->
-<link rel="stylesheet" href="Assets/css/Style.css">
-
-</head>
-<body>
-  <div class="navbar">
-    <div>NT Crime Dashboard <small>SA2 + Region outline</small></div>
-    <div style="font-size:12px; opacity:0.9;" id="asAt">Loading…</div>
-  </div>
-  <div class="wrap">
-    <div class="sidebar">
-      <h3>Filters</h3>
-      <div class="control">
-        <label>1) Location</label>
-        <select id="locationSelect"></select>
-        <div style="font-size:12px; margin-top:8px; opacity:0.95;">
-          • <b>All NT</b>: SA2 view<br/>
-          • <b>SA2 View</b>: SA2 view<br/>
-          • Select a region: SA2 filtered + region outline border
-        </div>
+   <head>
+      <meta charset="utf-8"/>
+      <title>NT Crime Dashboard</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <!-- Leaflet -->
+      <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+      <!-- ✅ YOUR CSS -->
+      <link rel="stylesheet" href="Assets/css/Style.css">
+   </head>
+   <body>
+      <div class="navbar">
+         <div>NT Crime Dashboard <small>SA2 + Region outline</small></div>
+         <div style="font-size:12px; opacity:0.9;" id="asAt">Loading…</div>
       </div>
-      <div class="control">
-        <label>2) Offence Type</label>
-        <select id="offenceSelect"></select>
+      <div class="wrap">
+         <div class="sidebar">
+            <h3>Filters</h3>
+            <div class="control">
+               <label>1) Location</label>
+               <select id="locationSelect"></select>
+               <div style="font-size:12px; margin-top:8px; opacity:0.95;">
+                  • <b>All NT</b>: SA2 view<br/>
+                  • <b>SA2 View</b>: SA2 view<br/>
+                  • Select a region: SA2 filtered + region outline border
+               </div>
+            </div>
+            <div class="control">
+               <label>2) Offence Type</label>
+               <select id="offenceSelect"></select>
+            </div>
+            <div class="control">
+               <label>3) Date Range (Start → End)</label>
+               <div class="row">
+                  <div>
+                     <label style="margin-top:0;">Start</label>
+                     <select id="startSelect"></select>
+                  </div>
+                  <div>
+                     <label style="margin-top:0;">End</label>
+                     <select id="endSelect"></select>
+                  </div>
+               </div>
+               <div style="font-size:12px; margin-top:8px; opacity:0.95;">
+                  KPI = % change from <b>Start month</b> to <b>End month</b>.
+               </div>
+            </div>
+            <button class="btn" onclick="applyFilters()">Apply</button>
+            <button class="btn secondary" onclick="togglePolice()">Police Stations (ON/OFF)</button>
+            <div style="font-size:12px; margin-top:10px; opacity:0.95;">
+               Tip: Hover on SA2 to see name.<br/>
+               Tip: Selecting region will show outline border.
+            </div>
+         </div>
+         <div id="map"></div>
       </div>
-      <div class="control">
-        <label>3) Date Range (Start → End)</label>
-        <div class="row">
-          <div>
-            <label style="margin-top:0;">Start</label>
-            <select id="startSelect"></select>
-          </div>
-          <div>
-            <label style="margin-top:0;">End</label>
-            <select id="endSelect"></select>
-          </div>
-        </div>
-        <div style="font-size:12px; margin-top:8px; opacity:0.95;">
-          KPI = % change from <b>Start month</b> to <b>End month</b>.
-        </div>
+      <div class="dashboard">
+         <div class="card">
+            <h4>Chart 1 — End vs Start</h4>
+            <div class="kpiTitle">Total offences</div>
+            <div class="kpiWrap">
+               <div class="kpiVal" id="totCount">—</div>
+               <div class="kpiDelta" id="totBadge">—</div>
+            </div>
+            <div class="kpiSub" id="totSub">Select filters to compute.</div>
+            <hr style="border:none;border-top:1px solid #eee;margin:10px 0;"/>
+            <div class="kpiTitle">Alcohol involved</div>
+            <div class="kpiWrap">
+               <div class="kpiVal" id="alcCount">—</div>
+               <div class="kpiDelta" id="alcBadge">—</div>
+            </div>
+            <div class="kpiSub" id="alcSub">—</div>
+         </div>
+         <div class="card">
+            <h4>Trend</h4>
+            <canvas id="chart2"></canvas>
+         </div>
+         <div class="card">
+            <h4>Offence type share</h4>
+            <canvas id="chart3"></canvas>
+         </div>
       </div>
-      <button class="btn" onclick="applyFilters()">Apply</button>
-      <button class="btn secondary" onclick="togglePolice()">Police Stations (ON/OFF)</button>
-      <div style="font-size:12px; margin-top:10px; opacity:0.95;">
-        Tip: Hover on SA2 to see name.<br/>
-        Tip: Selecting region will show outline border.
-      </div>
-    </div>
-    <div id="map"></div>
-  </div>
-  <div class="dashboard">
-    <div class="card">
-      <h4>Chart 1 — End vs Start</h4>
-      <div class="kpiTitle">Total offences</div>
-      <div class="kpiWrap">
-        <div class="kpiVal" id="totCount">—</div>
-        <div class="kpiDelta" id="totBadge">—</div>
-      </div>
-      <div class="kpiSub" id="totSub">Select filters to compute.</div>
-      <hr style="border:none;border-top:1px solid #eee;margin:10px 0;"/>
-      <div class="kpiTitle">Alcohol involved</div>
-      <div class="kpiWrap">
-        <div class="kpiVal" id="alcCount">—</div>
-        <div class="kpiDelta" id="alcBadge">—</div>
-      </div>
-      <div class="kpiSub" id="alcSub">—</div>
-    </div>
-    <div class="card">
-      <h4>Trend</h4>
-      <canvas id="chart2"></canvas>
-    </div>
-    <div class="card">
-      <h4>Offence type share</h4>
-      <canvas id="chart3"></canvas>
-    </div>
-  </div>
-  <div id="info" class="info-box">Hover over an area</div>
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<!-- Chart.js (you are using charts) -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- PapaParse (if using CSV parsing) -->
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
-<!-- ✅ YOUR JS -->
-<script src="Assets/js/app.js"></script>
-
-</body>
+      <div id="info" class="info-box">Hover over an area</div>
+      <!-- Leaflet JS -->
+      <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+      <!-- Chart.js (you are using charts) -->
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <!-- PapaParse (if using CSV parsing) -->
+      <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+      <!-- ✅ YOUR JS -->
+      <script src="Assets/js/app.js"></script>
+   </body>
 </html>
+>
