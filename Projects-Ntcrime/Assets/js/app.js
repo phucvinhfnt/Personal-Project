@@ -171,8 +171,10 @@
       const eIdx = ymToIndex(endSelect.value);
       if (eIdx < sIdx) endSelect.value = startSelect.value;
     }
-    startSelect.addEventListener("change", clamp);
-    endSelect.addEventListener("change", clamp);
+    startSelect.addEventListener("change", () => { clamp(); applyFilters(); });
+    endSelect.addEventListener("change", () => { clamp(); applyFilters(); });
+    locationSelect.addEventListener("change", applyFilters);
+    offenceSelect.addEventListener("change", applyFilters);
 
     locationSelect.value = "SA2 View";
     offenceSelect.value = "All offences";
