@@ -438,13 +438,9 @@
 
     const filters = { location: loc, offence: off, startYM: s, endYM: e };
 
-    // ✅ Always draw SA2 (full or filtered)
     drawSA2(filters);
-
-    // ✅ Draw outline border ONLY when a region is selected
     drawRegionOutline(filters);
 
-    // update info label
     const isRegion = (loc !== "All NT" && loc !== "SA2 View");
     if (isRegion) setInfo(`<b>Mode:</b> SA2 filtered<br/><span class="pill">${loc} outline</span>`);
     else setInfo(`<b>Mode:</b> SA2 View<br/><span class="pill">All NT</span>`);
