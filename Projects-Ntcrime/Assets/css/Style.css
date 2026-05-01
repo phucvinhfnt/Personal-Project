@@ -23,6 +23,31 @@ body {
     opacity: 0.85;
   }
 
+
+  .navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .back-link:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateY(-1px);
+  }
+
   .wrap {
     display: flex;
     height: 70vh;
