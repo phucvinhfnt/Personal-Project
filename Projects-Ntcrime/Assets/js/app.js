@@ -37,6 +37,7 @@ let outlineLayer = null;
 let chart2;
 let chart3;
 let chart4;
+let chart3FullLabels = [];
 let hasPopulation = false;
 
 const policeStations = [
@@ -632,15 +633,15 @@ function buildDonut(filters, topN = 8) {
   const top = sorted.slice(0, topN);
   const other = sorted.slice(topN).reduce((s, x) => s + x[1], 0);
 
-  const labels = top.map(x => x[0]);
+  const fullLabels = top.map(x => x[0]);
   const values = top.map(x => x[1]);
 
   if (other > 0) {
-    labels.push("Other");
+    fullLabels.push("Other");
     values.push(other);
   }
 
-  return { labels, values };
+  return { fullLabels, values };
 }
 
 function initCharts() {
@@ -707,21 +708,22 @@ function initCharts() {
         legend: {
           position: "bottom",
           labels: {
-            padding: 18,
+            padding: 12,
             font: {
-              size: 13,
+              size: 12,
               weight: "500",
               family: "'Inter', system-ui, -apple-system, sans-serif"
             },
             usePointStyle: true,
             pointStyle: "circle",
             color: "#1f3b73",
-            boxHeight: 10,
-            boxWidth: 10,
+            boxHeight: 8,
+            boxWidth: 8,
+            maxWidth: 120,
             generateLabels: function(chart) {
               const data = chart.data;
-              return data.labels.map((label, i) => ({
-                text: label,
+              return chart3FullLabels.map((fullLabel, i) => ({
+                text: fullLabel.length > 20 ? fullLabel.substring(0, 17) + "..." : fullLabel,
                 fillStyle: data.datasets[0].backgroundColor[i],
                 strokeStyle: data.datasets[0].borderColor,
                 lineWidth: 1,
@@ -760,11 +762,11 @@ function initCharts() {
         const idx = els[0].index;
         chart3SelectedIndex = chart3SelectedIndex === idx ? null : idx;
         chart3AnimProgress = 0;
-        
+
         if (chart3SelectedIndex !== null) {
-          const label = chart3.data.labels[idx];
+          const fullLabel = chart3FullLabels[idx];
           const offenceSelect = document.getElementById("offenceSelect");
-          offenceSelect.value = label === "Other" ? "All offences" : label;
+          offenceSelect.value = fullLabel === "Other" ? "All offences" : fullLabel;
           applyFilters();
           animateChart3Floating();
         } else {
@@ -898,10 +900,11 @@ function updateCharts(filters) {
 
   const donut = buildDonut(filters, 8);
 
-  chart3.data.labels = donut.labels;
+  chart3FullLabels = donut.fullLabels;
+  chart3.data.labels = donut.fullLabels;
   chart3.data.datasets[0].data = donut.values;
   chart3.data.datasets[0].backgroundColor =
-    donut.labels.map((_, i) => BLUE_SHADES[i % BLUE_SHADES.length]);
+    donut.fullLabels.map((_, i) => BLUE_SHADES[i % BLUE_SHADES.length]);
   chart3.update();
 
   const popTrend = buildPopulationTrend(filters);
