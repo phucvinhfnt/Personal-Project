@@ -12,7 +12,11 @@
    <body>
       <div class="navbar">
          <div>NT Crime Dashboard <small>SA2 + Region outline</small></div>
-         <div style="font-size:12px; opacity:0.9;" id="asAt">Loading…</div>
+        
+         <div class="navbar-actions">
+            <a class="back-link" href="../index.html">← Back to Main Menu</a>
+            <div style="font-size:12px; opacity:0.9;" id="asAt">Loading…</div>
+         </div>         
       </div>
       <div class="wrap">
          <div class="sidebar">
@@ -74,6 +78,14 @@
             <h4>Offence type share</h4>
             <canvas id="chart3"></canvas>
          </div>
+      </div>
+      <div class="chart-toggle-panel">
+         <button id="togglePopulationChart" class="toggle-chart-btn" type="button">Show population compare</button>
+      </div>
+      <div class="card collapsed" id="populationCard">
+         <h4>Population compare</h4>
+         <canvas id="chart4"></canvas>
+         <div class="kpiSub" id="popNotice">Population column not found yet.</div>
       </div>
       <div id="info" class="info-box">Hover over an area</div>
       <!-- Leaflet JS -->

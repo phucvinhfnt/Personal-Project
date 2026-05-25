@@ -5,66 +5,113 @@
 
 import geopandas as gpd
 import os
-
+import re
+import sys
 
 # =========================================================
-# 1 LOAD SA2 SHAPEFILE OR GEOJSON
+# 1 PATHS
 # =========================================================
 
-output_file = "data/nt_regions.geojson"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+DATA_DIR = os.path.join(PROJECT_DIR, "data")
 
-# Check if output already exists
-if os.path.exists(output_file):
-    print(f"Output file {output_file} already exists. Skipping processing.")
-    exit(0)
+os.makedirs(DATA_DIR, exist_ok=True)
 
-# Try to load from existing GeoJSON first, fallback to shapefile
-geojson_path = "data/nt_sa2.geojson"
+SA2_OUTPUT = os.path.join(DATA_DIR, "nt_sa2.geojson")
+REGION_OUTPUT = os.path.join(DATA_DIR, "nt_regions.geojson")
+ZIP_PATH = os.path.join(SCRIPT_DIR, "SA2_2021_AUST_SHP_GDA2020.zip")
 
-try:
+# =========================================================
+# 2 LOAD SA2 DATA
+# =========================================================
+
+if os.path.exists(SA2_OUTPUT):
     print("Loading SA2 from existing GeoJSON...")
-    sa2 = gpd.read_file(geojson_path)
-    print("Loaded SA2 from GeoJSON")
-except FileNotFoundError:
-    print("GeoJSON not found, trying shapefile...")
-    zip_path = "SA2_2021_AUST_SHP_GDA2020.zip"
-    sa2 = gpd.read_file(f"zip://{zip_path}")
+    sa2 = gpd.read_file(SA2_OUTPUT)
+else:
+    print("Loading SA2 from shapefile zip...")
+    if not os.path.exists(ZIP_PATH):
+        print(f"ERROR: Cannot find {ZIP_PATH}")
+        sys.exit(1)
+
+    sa2 = gpd.read_file(f"zip://{ZIP_PATH}")
 
 print("Total SA2 polygons:", len(sa2))
 
-
 # =========================================================
-# 2 CONVERT CRS
+# 3 CONVERT CRS TO WGS84
 # =========================================================
 
 sa2 = sa2.to_crs(epsg=4326)
 
-
 # =========================================================
-# 3 FILTER NORTHERN TERRITORY
+# 4 FILTER NORTHERN TERRITORY
 # =========================================================
 
 sa2_nt = sa2[sa2["STE_NAME21"] == "Northern Territory"].copy()
 
 print("NT SA2 count:", len(sa2_nt))
 
+# =========================================================
+# 5 MAP SA2 TO REGION
+# =========================================================
 
-# =========================================================
-# 4 FUNCTION MAP SA2 → REGION
-# =========================================================
+def normalize_name(name):
+    return re.sub(r"[^a-z0-9 ]+", " ", str(name).lower()).strip()
+
 
 def get_region(sa2_name):
+    s = normalize_name(sa2_name)
 
-    s = sa2_name.lower()
+    darwin_suburbs = [
+        "lyons", "tiwi", "east point", "brinkin", "nakara", "rapid creek",
+        "nightcliff", "alawa", "wagaman", "leanyer", "wulagi",
+        "jingili", "millner", "moili", "anula", "wanguri", "malak", "mararra",
+        "karama", "coconut grove", "ludmilla", "the narrows",
+        "parap", "fannie bay", "the gardens", "stuart park", "moil",
+        "larrakeyah", "darwin city", "bayview", "winnellie",
+        "charles darwin", "berrimah", "east arm", "darwin airport"
+    ]
 
-    if "darwin" in s:
-        return "Darwin"
+    # 🔥 check suburb Darwin only by normalized SA2 name
+    for suburb in darwin_suburbs:
+        if re.search(rf"\b{re.escape(suburb)}\b", s):
+            return "Darwin"
 
-    if "palmerston" in s:
+
+    palmerston_names = {
+        normalize_name(x)
+        for x in [
+            "driver",
+            "gray",
+            "bakewell",
+            "woodroffe",
+            "moulden",
+            "Rosebery - Bellamack",
+            "Durack - Marlow Lagoon",
+        ]
+    }
+
+    if "palmerston" in s or s in palmerston_names:
         return "Palmerston"
 
-    if "alice" in s:
+
+    alice_names = {
+        normalize_name(x)
+        for x in [
+            "Larapinta",
+            "Charles",
+            "East Side",
+            "Flynn (NT)",
+            "Mount Johns",
+            "Ross",
+        ]
+    }
+
+    if s in alice_names:
         return "Alice Springs"
+
 
     if "katherine" in s:
         return "Katherine"
@@ -77,58 +124,46 @@ def get_region(sa2_name):
 
     return "NT Balance"
 
-
-# =========================================================
-# 5 APPLY REGION CLASSIFICATION
-# =========================================================
-
 print("Assigning regions...")
 
 sa2_nt["Region"] = sa2_nt["SA2_NAME21"].apply(get_region)
 
-print(sa2_nt[["SA2_NAME21","Region"]].head())
-
+print(sa2_nt[["SA2_NAME21", "Region"]].head(20))
 
 # =========================================================
-# 6 MERGE SA2 → REGION
+# 6 EXPORT SA2 GEOJSON
 # =========================================================
 
-print("Merging SA2 polygons into regions...")
+sa2_nt.to_file(SA2_OUTPUT, driver="GeoJSON")
 
-regions = sa2_nt.dissolve(by="Region")
+print("SA2 GeoJSON exported:", SA2_OUTPUT)
 
-regions = regions.reset_index()
+# =========================================================
+# 7 DISSOLVE SA2 INTO REGIONS
+# =========================================================
+
+print("Dissolving SA2 polygons into 7 regions...")
+
+regions = sa2_nt.dissolve(
+    by="Region",
+    as_index=False
+)
+
+# Keep only clean region fields
+regions = regions[["Region", "geometry"]]
 
 print("Regions created:")
-
 print(regions["Region"])
 
+print("Region count:", len(regions))
 
 # =========================================================
-# 7 EXPORT GEOJSON
+# 8 EXPORT REGION GEOJSON
 # =========================================================
 
-output_file = "nt_regions.geojson"
+regions.to_file(REGION_OUTPUT, driver="GeoJSON")
 
-regions.to_file(
-    "data/nt_regions.geojson",
-    driver="GeoJSON"
-)
-
-print("GeoJSON exported:", output_file)
-
-
-# =========================================================
-# 8 OPTIONAL: ALSO EXPORT SA2 NT
-# =========================================================
-
-sa2_nt.to_file(
-    "nt_sa2.geojson",
-    driver="GeoJSON"
-)
-
-print("SA2 GeoJSON exported: nt_sa2.geojson")
-
+print("Region GeoJSON exported:", REGION_OUTPUT)
 
 # =========================================================
 # DONE
